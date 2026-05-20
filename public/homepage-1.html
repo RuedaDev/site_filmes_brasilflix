@@ -168,5 +168,19 @@
             console.log("🔄 Home carregada");
         });
     </script>
+    <script>
+  if (typeof document.body.onblocked === 'undefined') {
+    // Tenta detectar se um script de anúncio foi bloqueado
+    const testAd = document.createElement('script');
+    testAd.src = 'https://pl29507705.efficientcpmnetwork.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js';
+    testAd.onerror = function() {
+      const msg = document.createElement('div');
+      msg.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;background:#333;color:white;text-align:center;padding:15px;z-index:10002;';
+      msg.innerHTML = '😊 Por favor, desative o bloqueador de anúncios para ajudar a manter o site gratuito. Obrigado! <button style="margin-left:10px;padding:5px 10px;background:#e91e63;color:white;border:none;border-radius:5px;cursor:pointer;" onclick="this.parentElement.remove()">OK</button>';
+      document.body.appendChild(msg);
+    };
+    document.head.appendChild(testAd);
+  }
+</script>
 </body>
 </html>
