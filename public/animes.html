@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title>Animes - BrasilFLIX</title>
+        <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+        <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
+        <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
+        <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
+        <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+        <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body class="body brasilflix-body" data-bf-page="animes">
+        <header class="header header-horizontal header-view-pannel brasilflix-header">
+            <div class="container">
+                <nav class="navbar">
+                    <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX"><span class="logo-element"><span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span><span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span></span></a>
+                    <button class="navbar-toggler" type="button" aria-label="Abrir menu"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
+                    <div class="navbar-collapse">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
+                            <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
+                            <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
+                            <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
+                            <li class="nav-item active"><a class="nav-link" href="animes.html">Animes</a></li>
+                            <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
+                        </ul>
+                        <div class="navbar-extra"><a class="btn-theme btn" href="homepage-1.html#assistir"><i class="fas fa-play"></i>&nbsp;&nbsp;Player</a></div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+        <main>
+            <section class="bf-page-hero section-text-white"><div class="container"><span class="bf-kicker text-uppercase">Animacao</span><h1>Animes</h1><p>Pagina separada para animes com filtros por acao, aventura e outros generos.</p></div></section>
+            <section class="bf-catalog-section section-long section-text-white">
+                <div class="container">
+                    <div class="bf-section-head"><span class="bf-kicker text-uppercase">Catalogo</span><h2 class="section-title text-uppercase">Animes por categoria</h2></div>
+                    <div class="bf-control-panel mb-4"><form id="bf-title-form" autocomplete="off"><label for="bf-title-input">Filtrar animes</label><div class="bf-title-grid"><input id="bf-title-input" class="form-control" type="text" placeholder="Nome do anime" /><input id="bf-year-input" class="form-control" type="number" placeholder="Ano" min="1900" max="2100" /><button class="btn btn-theme" type="submit"><i class="fas fa-search"></i></button></div></form><p id="bf-message" class="bf-message" role="status">Escolha uma categoria.</p></div>
+                    <div id="bf-category-filters" class="bf-filter-row" aria-label="Categorias"></div>
+                    <div id="bf-catalog" class="bf-catalog-grid" aria-live="polite"></div>
+                </div>
+            </section>
+        </main>
+        <script src="./js/jquery-3.3.1.js"></script><script src="./bootstrap/js/bootstrap.js"></script><script src="./waypoints/jquery.waypoints.min.js"></script><script src="./js/script.js"></script><script src="./js/brasilflix.js"></script>
+    </body>
+</html>
