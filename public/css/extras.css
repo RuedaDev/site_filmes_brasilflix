@@ -1,8 +1,8 @@
 /* ==========================================
-   FUNCIONALIDADES EXTRAS - BRASILFLIX
+   FUNCIONALIDADES EXTRAS - BRASILFLIX (CSS UNIFICADO)
    ========================================== */
 
-/* Botões flutuantes - canto inferior direito */
+/* ---------- BOTÕES FLUTUANTES ---------- */
 .floating-actions {
     position: fixed !important;
     bottom: 30px !important;
@@ -11,6 +11,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    transition: opacity 0.3s ease;
 }
 
 .floating-btn {
@@ -22,7 +23,6 @@
     color: white;
     font-size: 1.2rem;
     cursor: pointer;
-    transition: all 0.3s;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
@@ -31,6 +31,7 @@
     gap: 8px;
     white-space: nowrap;
     overflow: hidden;
+    transition: all 0.3s;
 }
 
 .floating-btn:hover {
@@ -59,7 +60,7 @@
 .floating-btn.share { background: #4caf50; }
 .floating-btn.top { background: #ff9800; }
 
-/* Menu de compartilhamento */
+/* ---------- MENU COMPARTILHAR ---------- */
 .share-menu {
     position: fixed;
     bottom: 80px;
@@ -122,7 +123,7 @@
 .share-btn.telegram { background: #0088cc; }
 .share-btn.copy { background: #666; }
 
-/* Modal do trailer (centralizado) */
+/* ---------- MODAL TRAILER ---------- */
 .modal-trailer {
     display: none;
     position: fixed;
@@ -161,7 +162,7 @@
     cursor: pointer;
 }
 
-/* Toast */
+/* ---------- TOAST ---------- */
 .toast-notification {
     position: fixed;
     top: 20px;
@@ -179,7 +180,7 @@
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* Fav btn nos cards */
+/* ---------- BOTÃO FAVORITO NOS CARDS ---------- */
 .fav-btn {
     position: absolute;
     top: 10px;
@@ -195,7 +196,7 @@
     font-size: 1.2rem;
 }
 
-/* Botão Trailer Bonito (FORA de media query) */
+/* ---------- BOTÕES DETALHES (TRAILER E FAVORITAR) ---------- */
 .btn-trailer {
     background: linear-gradient(135deg, #ff416c, #ff4b2b);
     color: white;
@@ -226,7 +227,6 @@
     font-size: 0.8rem;
 }
 
-/* Botão de Favoritar na página de detalhes (FORA de media query) */
 .btn-fav-detail {
     background: rgba(255,255,255,0.1);
     border: 2px solid rgba(255,255,255,0.2);
@@ -254,102 +254,67 @@
     color: white;
 }
 
-/* Responsivo */
-@media (max-width: 768px) {
-    .floating-actions {
-        bottom: 20px !important;
-        right: 15px !important;
-    }
-    .share-menu {
-        bottom: 70px;
-        right: 60px;
-    }
-    
-
-}
+/* ---------- TÍTULO DAS SEÇÕES MAIOR ---------- */
 .bf-section-head .bf-kicker,
 .bf-home-block .bf-kicker {
     font-size: 1.6rem !important;
     font-weight: bold;
 }
-/* Corrige botões flutuantes no mobile */
+
+/* ==========================================
+   RESPONSIVIDADE (MOBILE) - TUDO UNIFICADO
+   ========================================== */
 @media (max-width: 768px) {
+    /* Botões flutuantes */
     .floating-actions {
         bottom: 20px !important;
         right: 15px !important;
         gap: 8px;
     }
     .floating-btn {
-        min-width: 40px;
-        height: 40px;
-        padding: 0 10px;
-        font-size: 1rem;
+        min-width: 44px;
+        height: 44px;
+        padding: 0;
+        justify-content: center;
+        font-size: 1.1rem;
     }
+    .floating-btn .floating-label {
+        display: none;  /* apenas ícone */
+    }
+
+    /* Menu compartilhar */
     .share-menu {
         bottom: 70px;
         right: 60px;
         min-width: 180px;
     }
+
+    /* Modal trailer */
     .modal-trailer-content {
         width: 95%;
     }
     .modal-trailer iframe {
         height: 250px;
     }
-    /* Ajuste dos cards em grades */
+
+    /* Grid de cards */
     .bf-catalog-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 10px;
     }
-    /* Botão do trailer e favoritar em detalhes */
-    .btn-trailer, .btn-fav-detail {
+
+    /* Botões Trailer e Favoritar empilhados */
+    .btn-trailer,
+    .btn-fav-detail {
         display: block;
         width: 100%;
         margin: 5px 0;
     }
-}
-/* ==========================================
-   CORREÇÕES MOBILE - PLAYER NÃO SOBREPOR
-   ========================================== */
 
-/* Garante que o player tenha espaço suficiente embaixo */
-@media (max-width: 768px) {
+    /* Player: espaço extra para os botões flutuantes */
     .bf-player-section {
-        padding-bottom: 100px !important; /* espaço para os botões flutuantes */
+        padding-bottom: 100px !important;
     }
-
-    .bf-player-shell {
-        margin-bottom: 20px;
-    }
-
-    /* Ajusta posição dos botões flutuantes para não cobrirem o player */
-    .floating-actions {
-        bottom: 25px !important;
-        right: 15px !important;
-        gap: 8px;
-    }
-
-    /* Se quiser deixar os botões ainda menores */
-    .floating-btn {
-        width: 40px;
-        height: 40px;
-        padding: 0;
-        justify-content: center;
-        font-size: 1.1rem;
-    }
-
-    /* Esconde o texto dos botões no mobile (só ícone) */
-    .floating-btn .floating-label {
-        display: none;
-    }
-
-    /* Aumenta área de toque dos botões */
-    .floating-btn {
-        min-width: 44px;
-        min-height: 44px;
-    }
-
-    /* Player iframe altura menor */
     .bf-player-shell iframe {
         height: 250px;
     }
