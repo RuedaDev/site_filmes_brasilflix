@@ -1,11 +1,12 @@
-// BrasilFLIX backend
-// Serve o frontend e centraliza todas as chamadas ao TMDB para nao expor a chave no navegador.
-
+// BrasilFLIX backend com autenticação
 const path = require("path");
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Database = require("better-sqlite3");
 
 dotenv.config();
 
@@ -15,38 +16,241 @@ const TMDB_KEY = process.env.TMDB_KEY;
 const TMDB_READ_TOKEN = process.env.TMDB_READ_TOKEN;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const PUBLIC_DIR = path.join(__dirname, "public");
+const JWT_SECRET = process.env.JWT_SECRET || "brasilflix_secret_key_2024";
 
-// Middlewares basicos do servidor.
+// Banco de dados SQLite
+const db = new Database("brasilflix.db");
+db.pragma("journal_mode = WAL");
+
+// Cria tabelas se não existirem
+db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        tmdb_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        poster_path TEXT,
+        media_type TEXT DEFAULT 'movie',
+        added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        UNIQUE(user_id, tmdb_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        tmdb_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        poster_path TEXT,
+        media_type TEXT DEFAULT 'movie',
+        watched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+`);
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.static(PUBLIC_DIR));
 
-// Redireciona a raiz para a home atual.
+// Redireciona a raiz
 app.get("/", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
 });
 
-// ==================== CSP PERMISSIVO PARA DESENVOLVIMENTO ====================
+// CSP Permissivo
 app.use((req, res, next) => {
-    res.setHeader(
-        "Content-Security-Policy",
+    res.setHeader("Content-Security-Policy",
         "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; " +
         "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; " +
         "style-src * 'unsafe-inline' data: blob:; " +
         "img-src * data: blob:; " +
         "frame-src * data: blob:; " +
         "connect-src *; " +
-        "media-src *;"
-    );
-
+        "media-src *;");
     res.setHeader("X-Frame-Options", "ALLOWALL");
     res.setHeader("Access-Control-Allow-Origin", "*");
-    
     next();
 });
-// ===========================================================================
 
-// Health check simples para confirmar se o servidor e a chave estao prontos.
+// ==================== ROTAS DE AUTENTICAÇÃO ====================
+
+// Middleware para verificar token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+        return res.status(401).json({ error: "Token não fornecido" });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ error: "Token inválido" });
+        }
+        req.user = user;
+        next();
+    });
+}
+
+// Registro de usuário
+app.post("/api/auth/register", async (req, res) => {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: "A senha deve ter pelo menos 6 caracteres" });
+    }
+
+    try {
+        // Verifica se o email já existe
+        const existingUser = db.prepare("SELECT id FROM users WHERE email = ?").get(email);
+        if (existingUser) {
+            return res.status(400).json({ error: "Email já cadastrado" });
+        }
+
+        // Criptografa a senha
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insere o usuário
+        const result = db.prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)").run(name, email, hashedPassword);
+
+        // Gera token
+        const token = jwt.sign({ id: result.lastInsertRowid, name, email }, JWT_SECRET, { expiresIn: "30d" });
+
+        res.status(201).json({
+            message: "Conta criada com sucesso!",
+            token,
+            user: {
+                id: result.lastInsertRowid,
+                name,
+                email
+            }
+        });
+    } catch (error) {
+        console.error("Erro no registro:", error);
+        res.status(500).json({ error: "Erro ao criar conta" });
+    }
+});
+
+// Login
+app.post("/api/auth/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email e senha são obrigatórios" });
+    }
+
+    try {
+        // Busca o usuário
+        const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
+        if (!user) {
+            return res.status(401).json({ error: "Email ou senha incorretos" });
+        }
+
+        // Verifica a senha
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(401).json({ error: "Email ou senha incorretos" });
+        }
+
+        // Gera token
+        const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: "30d" });
+
+        res.json({
+            message: "Login bem-sucedido!",
+            token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error("Erro no login:", error);
+        res.status(500).json({ error: "Erro ao fazer login" });
+    }
+});
+
+// Obter perfil do usuário
+app.get("/api/auth/profile", authenticateToken, (req, res) => {
+    const user = db.prepare("SELECT id, name, email, created_at FROM users WHERE id = ?").get(req.user.id);
+    if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+    res.json(user);
+});
+
+// ==================== ROTAS DE FAVORITOS (SERVIDOR) ====================
+
+// Adicionar favorito
+app.post("/api/favorites", authenticateToken, (req, res) => {
+    const { tmdb_id, title, poster_path, media_type } = req.body;
+
+    try {
+        db.prepare("INSERT OR IGNORE INTO favorites (user_id, tmdb_id, title, poster_path, media_type) VALUES (?, ?, ?, ?, ?)").run(
+            req.user.id, tmdb_id, title, poster_path, media_type || "movie"
+        );
+        res.json({ message: "Favorito adicionado!" });
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao adicionar favorito" });
+    }
+});
+
+// Listar favoritos
+app.get("/api/favorites", authenticateToken, (req, res) => {
+    const favorites = db.prepare("SELECT * FROM favorites WHERE user_id = ? ORDER BY added_at DESC").all(req.user.id);
+    res.json(favorites);
+});
+
+// Remover favorito
+app.delete("/api/favorites/:tmdb_id", authenticateToken, (req, res) => {
+    db.prepare("DELETE FROM favorites WHERE user_id = ? AND tmdb_id = ?").run(req.user.id, req.params.tmdb_id);
+    res.json({ message: "Favorito removido" });
+});
+
+// Verificar se está favoritado
+app.get("/api/favorites/check/:tmdb_id", authenticateToken, (req, res) => {
+    const fav = db.prepare("SELECT id FROM favorites WHERE user_id = ? AND tmdb_id = ?").get(req.user.id, req.params.tmdb_id);
+    res.json({ isFavorited: !!fav });
+});
+
+// ==================== ROTAS DE HISTÓRICO (SERVIDOR) ====================
+
+// Adicionar ao histórico
+app.post("/api/history", authenticateToken, (req, res) => {
+    const { tmdb_id, title, poster_path, media_type } = req.body;
+
+    try {
+        db.prepare("INSERT INTO history (user_id, tmdb_id, title, poster_path, media_type) VALUES (?, ?, ?, ?, ?)").run(
+            req.user.id, tmdb_id, title, poster_path, media_type || "movie"
+        );
+        res.json({ message: "Histórico atualizado!" });
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao salvar histórico" });
+    }
+});
+
+// Listar histórico
+app.get("/api/history", authenticateToken, (req, res) => {
+    const history = db.prepare("SELECT * FROM history WHERE user_id = ? ORDER BY watched_at DESC LIMIT 50").all(req.user.id);
+    res.json(history);
+});
+
+// ==================== ROTAS EXISTENTES DO TMDB ====================
+
+// Health check
 app.get("/api/health", (req, res) => {
     res.json({
         ok: true,
@@ -54,7 +258,7 @@ app.get("/api/health", (req, res) => {
     });
 });
 
-// Filmes populares.
+// Filmes populares
 app.get("/api/popular", async (req, res) => {
     const media = normalizeMedia(req.query.type || "movie");
     const page = normalizePage(req.query.page);
@@ -62,7 +266,7 @@ app.get("/api/popular", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
-// Filmes/series mais bem avaliados.
+// Top rated
 app.get("/api/top", async (req, res) => {
     const media = normalizeMedia(req.query.type || "movie");
     const page = normalizePage(req.query.page);
@@ -70,7 +274,7 @@ app.get("/api/top", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
-// Tendencias da semana.
+// Trending
 app.get("/api/trending", async (req, res) => {
     const media = normalizeMedia(req.query.type || "movie");
     const page = normalizePage(req.query.page);
@@ -78,7 +282,7 @@ app.get("/api/trending", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
-// Discover permite montar catalogos grandes por paginas.
+// Discover
 app.get("/api/discover", async (req, res) => {
     const media = normalizeMedia(req.query.type || "movie");
     const page = normalizePage(req.query.page);
@@ -92,7 +296,7 @@ app.get("/api/discover", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
-// Busca profissional em tempo real.
+// Search
 app.get("/api/search", async (req, res) => {
     const query = String(req.query.query || "").trim();
     const media = normalizeMedia(req.query.type || "movie");
@@ -111,7 +315,7 @@ app.get("/api/search", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
-// Detalhes completos para a pagina de detalhes/player.
+// Details
 app.get("/api/details/:type/:id", async (req, res) => {
     const media = normalizeMedia(req.params.type || "movie");
     const id = String(req.params.id || "").replace(/\D/g, "");
@@ -127,7 +331,7 @@ app.get("/api/details/:type/:id", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
-// Compatibilidade com o codigo anterior do projeto.
+// Rotas TMDB adicionais
 app.get("/api/tmdb/popular", async (req, res) => {
     const media = normalizeMedia(req.query.type || "movie");
     const page = normalizePage(req.query.page);
@@ -158,294 +362,93 @@ app.get("/api/tmdb/find/:imdbId", async (req, res) => {
 
 // ==================== ROTAS DE DORAMAS ====================
 
-// Doramas populares (Coreanos, Japoneses, Chineses)
-// Doramas populares - VERSÃO SIMPLIFICADA
 app.get("/api/doramas/popular", async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    
-    console.log("🎌 Buscando doramas página", page);
-    
-    // Busca séries coreanas populares (sem filtros complexos)
     const data = await tmdbRequest("/discover/tv", {
         page,
         sort_by: "popularity.desc",
-        with_original_language: "ko",  // Apenas coreano (mais comum)
-        "vote_count.gte": 1
+        with_original_language: "ko|ja|zh",
+        with_origin_country: "KR|JP|CN|TW",
+        "vote_count.gte": 10
     });
-    
-    console.log("📊 Resultados:", data.total_results);
-    
-    sendTmdbResult(res, data);
-});
-// Doramas em tendência
-app.get("/api/doramas/trending", async (req, res) => {
-    const page = normalizePage(req.query.page);
-    
-    const data = await tmdbRequest("/trending/tv/week", {
-        page,
-        language: "pt-BR"
-    });
-    
-    // Filtra apenas conteúdo asiático
-    if (data.results) {
-        data.results = data.results.filter(item => 
-            item.origin_country && 
-            item.origin_country.some(country => ["KR", "JP", "CN", "TW", "TH"].includes(country))
-        );
-    }
-    
     sendTmdbResult(res, data);
 });
 
-// Busca de doramas
 app.get("/api/doramas/search", async (req, res) => {
     const query = String(req.query.query || "").trim();
-    const page = normalizePage(req.query.page);
-    
     if (!query) {
-        res.json({ page: 1, results: [], total_pages: 0, total_results: 0 });
+        res.json({ results: [] });
         return;
     }
-    
-    const data = await tmdbRequest("/search/tv", {
-        query,
-        page,
-        include_adult: false,
-        language: "pt-BR"
-    });
-    
-    // Filtra resultados asiáticos
+    const data = await tmdbRequest("/search/tv", { query, include_adult: false });
     if (data.results) {
-        data.results = data.results.filter(item =>
-            item.original_language && ["ko", "ja", "zh", "th"].includes(item.original_language)
-        );
+        data.results = data.results.filter(item => ["ko", "ja", "zh", "th"].includes(item.original_language));
     }
-    
-    sendTmdbResult(res, data);
-});
-
-// Doramas por país específico
-app.get("/api/doramas/by-country/:country", async (req, res) => {
-    const page = normalizePage(req.query.page);
-    const country = req.params.country.toUpperCase();
-    
-    const countryMap = {
-        "KR": { language: "ko", name: "Coreia do Sul" },
-        "JP": { language: "ja", name: "Japão" },
-        "CN": { language: "zh", name: "China" },
-        "TW": { language: "zh", name: "Taiwan" },
-        "TH": { language: "th", name: "Tailândia" }
-    };
-    
-    if (!countryMap[country]) {
-        res.status(400).json({ error: "País não suportado" });
-        return;
-    }
-    
-    const data = await tmdbRequest("/discover/tv", {
-        page,
-        sort_by: "popularity.desc",
-        with_original_language: countryMap[country].language,
-        with_origin_country: country,
-        "vote_count.gte": 5
-    });
-    
     sendTmdbResult(res, data);
 });
 
 // ==================== ROTAS DE ANIMES ====================
 
-// Animes populares
 app.get("/api/animes/popular", async (req, res) => {
-    const page = normalizePage(req.query.page);
-    
-    const data = await tmdbRequest("/discover/tv", {
-        page,
-        sort_by: "popularity.desc",
-        with_genres: "16", // Gênero de animação
-        with_original_language: "ja", // Japonês
-        with_origin_country: "JP",
-        "vote_count.gte": 10,
-        without_genres: "10764,10767" // Remove reality e talk show
-    });
-    
-    sendTmdbResult(res, data);
-});
-
-// Animes em tendência
-app.get("/api/animes/trending", async (req, res) => {
-    const page = normalizePage(req.query.page);
-    
-    const data = await tmdbRequest("/trending/tv/week", {
-        page,
-        language: "pt-BR"
-    });
-    
-    // Filtra apenas animes
-    if (data.results) {
-        data.results = data.results.filter(item =>
-            item.genre_ids && item.genre_ids.includes(16) &&
-            item.original_language === "ja"
-        );
-    }
-    
-    sendTmdbResult(res, data);
-});
-
-// Busca de animes
-app.get("/api/animes/search", async (req, res) => {
-    const query = String(req.query.query || "").trim();
-    const page = normalizePage(req.query.page);
-    
-    if (!query) {
-        res.json({ page: 1, results: [], total_pages: 0, total_results: 0 });
-        return;
-    }
-    
-    const data = await tmdbRequest("/search/tv", {
-        query,
-        page,
-        include_adult: false,
-        language: "pt-BR"
-    });
-    
-    // Filtra apenas animes (gênero 16 = animação, idioma japonês)
-    if (data.results) {
-        data.results = data.results.filter(item =>
-            item.genre_ids && item.genre_ids.includes(16) &&
-            item.original_language === "ja"
-        );
-    }
-    
-    sendTmdbResult(res, data);
-});
-
-// Animes por gênero específico
-app.get("/api/animes/by-genre/:genreId", async (req, res) => {
-    const page = normalizePage(req.query.page);
-    const genreId = req.params.genreId;
-    
-    // Gêneros populares de anime no TMDB
-    const validGenres = {
-        "16": "Animação",
-        "10759": "Ação & Aventura",
-        "35": "Comédia",
-        "18": "Drama",
-        "10765": "Sci-Fi & Fantasia",
-        "9648": "Mistério",
-        "10751": "Família"
-    };
-    
-    if (!validGenres[genreId]) {
-        res.status(400).json({ error: "Gênero não suportado para animes" });
-        return;
-    }
-    
-    const data = await tmdbRequest("/discover/tv", {
-        page,
-        sort_by: "popularity.desc",
-        with_genres: `16,${genreId}`,
-        with_original_language: "ja",
-        with_origin_country: "JP",
-        "vote_count.gte": 5
-    });
-    
-    sendTmdbResult(res, data);
-});
-
-// Animes por temporada
-app.get("/api/animes/seasonal", async (req, res) => {
-    const page = normalizePage(req.query.page);
-    const year = req.query.year || new Date().getFullYear();
-    const season = req.query.season || getCurrentSeason();
-    
+    const page = parseInt(req.query.page) || 1;
     const data = await tmdbRequest("/discover/tv", {
         page,
         sort_by: "popularity.desc",
         with_genres: "16",
         with_original_language: "ja",
-        first_air_date_year: year,
-        "vote_count.gte": 5,
-        with_origin_country: "JP"
-    });
-    
-    sendTmdbResult(res, data);
-});
-// ==================== ROTAS DE GÊNEROS ====================
-
-// Lista de gêneros
-app.get("/api/genres/:type", async (req, res) => {
-    const media = normalizeMedia(req.params.type || "movie");
-    const data = await tmdbRequest(`/genre/${media}/list`, {
-        language: "pt-BR"
+        "vote_count.gte": 10
     });
     sendTmdbResult(res, data);
 });
 
-// Conteúdo por gênero
-app.get("/api/genre/:type/:genreId", async (req, res) => {
-    const media = normalizeMedia(req.params.type || "movie");
-    const genreId = req.params.genreId;
-    const page = normalizePage(req.query.page);
-    
-    const data = await tmdbRequest(`/discover/${media}`, {
-        page,
-        sort_by: req.query.sort_by || "popularity.desc",
-        with_genres: genreId,
-        "vote_count.gte": 5
-    });
-    sendTmdbResult(res, data);
-});
-
-// ==================== ROTAS DE TENDÊNCIAS ====================
-
-app.get("/api/trending/all", async (req, res) => {
-    const page = normalizePage(req.query.page);
-    const data = await tmdbRequest("/trending/all/week", {
-        page
-    });
-    sendTmdbResult(res, data);
-});
-
-// ==================== ROTAS DE ELENCO ====================
-
-app.get("/api/person/:id", async (req, res) => {
-    const data = await tmdbRequest(`/person/${req.params.id}`, {
-        append_to_response: "movie_credits,tv_credits",
-        language: "pt-BR"
-    });
-    sendTmdbResult(res, data);
-});
-
-// ==================== ROTAS DE TRAILERS ====================
+// ==================== OUTRAS ROTAS ====================
 
 app.get("/api/trailers/:type/:id", async (req, res) => {
     const media = normalizeMedia(req.params.type || "movie");
-    const data = await tmdbRequest(`/${media}/${req.params.id}/videos`, {
-        language: "pt-BR"
-    });
+    const data = await tmdbRequest(`/${media}/${req.params.id}/videos`, { language: "pt-BR" });
     sendTmdbResult(res, data);
 });
-// Qualquer rota desconhecida do frontend volta para a home.
+
+// ads.txt
+app.get("/ads.txt", (req, res) => {
+    res.type("text/plain");
+    res.send("google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0");
+});
+
+// Fallback para páginas HTML
 app.use((req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
 });
 
+// Estatísticas do usuário (perfil)
+app.get("/api/user/stats", authenticateToken, (req, res) => {
+    const userId = req.user.id;
+    const favCount = db.prepare("SELECT COUNT(*) as count FROM favorites WHERE user_id = ?").get(userId).count;
+    const histCount = db.prepare("SELECT COUNT(*) as count FROM history WHERE user_id = ?").get(userId).count;
+    const user = db.prepare("SELECT name, email, created_at FROM users WHERE id = ?").get(userId);
+    res.json({ ...user, favoritesCount: favCount, historyCount: histCount });
+});
+
+// Rota admin: listar usuários
+app.get("/api/admin/users", (req, res) => {
+    const { key } = req.query;
+    if (key !== process.env.ADMIN_KEY) {
+        return res.status(403).json({ error: "Acesso negado" });
+    }
+    const users = db.prepare("SELECT id, name, email, created_at FROM users ORDER BY created_at DESC").all();
+    res.json({ total: users.length, users });
+});
+// ==================== INICIAR SERVIDOR ====================
+
 app.listen(PORT, () => {
     console.log(`✅ BrasilFLIX online em http://localhost:${PORT}`);
-    console.log(`🎌 Rotas de Doramas: /api/doramas/*`);
-    console.log(`🎬 Rotas de Animes: /api/animes/*`);
 });
 
 // ==================== FUNÇÕES AUXILIARES ====================
 
-// Faz requisicoes ao TMDB sempre com idioma pt-BR e chave protegida no backend.
 async function tmdbRequest(endpoint, params = {}) {
     if (!hasValidApiKey() && !hasValidReadToken()) {
-        return {
-            error: "tmdb_key_missing",
-            message: "Configure TMDB_KEY ou TMDB_READ_TOKEN no arquivo .env."
-        };
+        return { error: "tmdb_key_missing", message: "Configure TMDB_KEY no arquivo .env." };
     }
 
     try {
@@ -453,11 +456,7 @@ async function tmdbRequest(endpoint, params = {}) {
         const authParams = hasValidReadToken() ? {} : { api_key: TMDB_KEY };
 
         const response = await axios.get(`${TMDB_BASE_URL}${endpoint}`, {
-            params: {
-                ...authParams,
-                language: "pt-BR",
-                ...removeEmpty(params)
-            },
+            params: { ...authParams, language: "pt-BR", ...removeEmpty(params) },
             headers,
             timeout: 12000
         });
@@ -465,61 +464,38 @@ async function tmdbRequest(endpoint, params = {}) {
         return response.data;
     } catch (error) {
         console.error(`❌ Erro TMDB: ${endpoint}`, error.message);
-        return {
-            error: "tmdb_request_failed",
-            status: error.response ? error.response.status : 500,
-            message: error.message,
-            details: error.response ? error.response.data : null
-        };
+        return { error: "tmdb_request_failed" };
     }
 }
 
-// Verifica se ha uma API key v3 plausivel configurada.
 function hasValidApiKey() {
-    return Boolean(TMDB_KEY && TMDB_KEY !== "cole_sua_api_key_aqui" && TMDB_KEY.length > 10);
+    return Boolean(TMDB_KEY && TMDB_KEY.length > 10);
 }
 
-// Verifica se ha um read access token v4 plausivel configurado.
 function hasValidReadToken() {
-    return Boolean(TMDB_READ_TOKEN && TMDB_READ_TOKEN !== "cole_seu_token_read_access_aqui" && TMDB_READ_TOKEN.startsWith("ey"));
+    return Boolean(TMDB_READ_TOKEN && TMDB_READ_TOKEN.startsWith("ey"));
 }
 
-// Envia resposta padronizada para falhas e sucessos do TMDB.
 function sendTmdbResult(res, data) {
     if (data && data.error) {
-        res.status(data.status || 500).json(data);
+        res.status(500).json(data);
         return;
     }
-
     res.json(data);
 }
 
-// Normaliza o tipo de midia para os nomes aceitos pelo TMDB.
 function normalizeMedia(type) {
     return type === "tv" || type === "series" ? "tv" : "movie";
 }
 
-// Limita paginas para evitar abuso acidental.
 function normalizePage(page) {
     const value = Number(page || 1);
-    if (!Number.isFinite(value) || value < 1) {
-        return 1;
-    }
+    if (!Number.isFinite(value) || value < 1) return 1;
     return Math.min(value, 500);
 }
 
-// Remove parametros vazios antes de chamar o TMDB.
 function removeEmpty(params) {
     return Object.fromEntries(
         Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== "")
     );
-}
-
-// Retorna a estação atual para animes sazonais
-function getCurrentSeason() {
-    const month = new Date().getMonth();
-    if (month >= 0 && month <= 2) return "winter";
-    if (month >= 3 && month <= 5) return "spring";
-    if (month >= 6 && month <= 8) return "summer";
-    return "fall";
 }

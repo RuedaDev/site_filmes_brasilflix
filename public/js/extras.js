@@ -1,13 +1,16 @@
 // ==========================================
-// FUNCIONALIDADES EXTRAS - BRASILFLIX (OTIMIZADO)
+// FUNCIONALIDADES EXTRAS - BRASILFLIX (COM AUTH)
 // ==========================================
-
 (function() {
     "use strict";
-
     console.log("🌟 Funcionalidades Extras carregadas");
 
-    // ---------- SISTEMA DE FAVORITOS ----------
+    // ---------- UTILITÁRIOS ----------
+    const getToken = () => localStorage.getItem('bf_token');
+    const getUser = () => JSON.parse(localStorage.getItem('bf_user') || 'null');
+    const isLoggedIn = () => !!getToken();
+
+    // ---------- SISTEMA DE FAVORITOS (com sincronização) ----------
     const Favorites = {
         get() {
             try { return JSON.parse(localStorage.getItem('bf_favorites') || '[]'); } catch(e) { return []; }
@@ -24,19 +27,75 @@
                 });
                 localStorage.setItem('bf_favorites', JSON.stringify(favs));
                 showToast('❤️ Adicionado aos favoritos!');
+                // Sincroniza com servidor se logado
+                this.addToServer(item);
             }
         },
         remove(id) {
             let favs = this.get().filter(f => f.id !== id);
             localStorage.setItem('bf_favorites', JSON.stringify(favs));
             showToast('💔 Removido dos favoritos');
+            this.removeFromServer(id);
         },
         isFavorited(id) {
             return this.get().some(f => f.id === id);
+        },
+        async syncWithServer() {
+            const token = getToken();
+            if (!token) return;
+            try {
+                const response = await fetch('/api/favorites', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const serverFavs = await response.json();
+                const localFavs = this.get();
+                for (const fav of serverFavs) {
+                    if (!localFavs.find(lf => lf.id === fav.tmdb_id)) {
+                        localFavs.push({
+                            id: fav.tmdb_id,
+                            title: fav.title,
+                            poster: fav.poster_path,
+                            media: fav.media_type
+                        });
+                    }
+                }
+                localStorage.setItem('bf_favorites', JSON.stringify(localFavs));
+            } catch (error) {
+                console.log('Usando favoritos locais');
+            }
+        },
+        async addToServer(item) {
+            const token = getToken();
+            if (!token) return;
+            try {
+                await fetch('/api/favorites', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        tmdb_id: item.id,
+                        title: item.title,
+                        poster_path: item.poster_path || '',
+                        media_type: item.media || 'movie'
+                    })
+                });
+            } catch (error) {}
+        },
+        async removeFromServer(id) {
+            const token = getToken();
+            if (!token) return;
+            try {
+                await fetch(`/api/favorites/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (error) {}
         }
     };
 
-    // ---------- HISTÓRICO ----------
+    // ---------- HISTÓRICO (com servidor) ----------
     const History = {
         get() {
             try { return JSON.parse(localStorage.getItem('bf_history') || '[]'); } catch(e) { return []; }
@@ -52,8 +111,27 @@
             });
             if (history.length > 50) history.pop();
             localStorage.setItem('bf_history', JSON.stringify(history));
+            this.addToServer(item);
         },
-        getLastWatched() { return this.get().slice(0, 10); }
+        async addToServer(item) {
+            const token = getToken();
+            if (!token) return;
+            try {
+                await fetch('/api/history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        tmdb_id: item.id,
+                        title: item.title,
+                        poster_path: item.poster_path || '',
+                        media_type: item.media || 'movie'
+                    })
+                });
+            } catch (error) {}
+        }
     };
 
     // ---------- TEMA ----------
@@ -79,6 +157,42 @@
             }
         }
     };
+
+    // ---------- HEADER DINÂMICO (LOGIN/LOGOUT) ----------
+    function updateHeader() {
+        const user = getUser();
+        const navbarExtra = document.querySelector('.navbar-extra');
+        if (!navbarExtra) return;
+
+        if (user && user.name) {
+            navbarExtra.innerHTML = `
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        👤 ${user.name}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="perfil.html"><i class="fas fa-user"></i> Perfil</a>
+                        <a class="dropdown-item" href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                    </div>
+                </div>
+            `;
+            document.getElementById('logout-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+            });
+        } else {
+            navbarExtra.innerHTML = `
+                <a class="btn-theme btn" href="login.html"><i class="fas fa-user"></i>&nbsp;&nbsp;Login</a>
+            `;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('bf_token');
+        localStorage.removeItem('bf_user');
+        // Opcional: limpar favoritos locais ou manter
+        window.location.href = 'homepage-1.html';
+    }
 
     // ---------- BOTÕES FLUTUANTES ----------
     function createFloatingButtons() {
@@ -108,7 +222,6 @@
     function createShareMenu() {
         const existing = document.getElementById('share-menu');
         if (existing) existing.remove();
-
         const menu = document.createElement('div');
         menu.className = 'share-menu';
         menu.id = 'share-menu';
@@ -124,24 +237,21 @@
         `;
         document.body.appendChild(menu);
     }
-
     function copyToClipboard() {
         navigator.clipboard.writeText(window.location.href).then(() => {
             showToast('📋 Link copiado!');
             document.getElementById('share-menu').classList.remove('show');
         }).catch(() => showToast('❌ Erro ao copiar link'));
     }
-
-    window.toggleShareMenu = function() {
-        const menu = document.getElementById('share-menu');
-        if (menu) menu.classList.toggle('show');
+    window.toggleShareMenu = () => {
+        const m = document.getElementById('share-menu');
+        if (m) m.classList.toggle('show');
     };
 
     // ---------- MODAL TRAILER ----------
     function createTrailerModal() {
         const existing = document.getElementById('trailer-modal');
         if (existing) existing.remove();
-
         const modal = document.createElement('div');
         modal.className = 'modal-trailer';
         modal.id = 'trailer-modal';
@@ -153,214 +263,162 @@
         `;
         document.body.appendChild(modal);
     }
-
-    window.playTrailer = async function(mediaType, id) {
+    window.playTrailer = async (mediaType, id) => {
         try {
-            const response = await fetch(`/api/trailers/${mediaType}/${id}`);
-            const data = await response.json();
+            const resp = await fetch(`/api/trailers/${mediaType}/${id}`);
+            const data = await resp.json();
             if (data.results && data.results.length > 0) {
                 const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || data.results[0];
                 document.getElementById('trailer-iframe').src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1`;
                 document.getElementById('trailer-modal').classList.add('show');
-            } else {
-                showToast('😔 Trailer não disponível');
-            }
-        } catch (error) {
-            showToast('❌ Erro ao carregar trailer');
-        }
+            } else showToast('😔 Trailer indisponível');
+        } catch (e) { showToast('❌ Erro ao carregar trailer'); }
     };
 
-    // ---------- BOTÃO DE FAVORITAR (DETALHES) ----------
+    // ---------- BOTÃO FAVORITAR NA PÁGINA DE DETALHES ----------
     function createDetailFavoriteButton() {
         if (document.body.getAttribute('data-bf-page') !== 'detalhes') return;
-
         setTimeout(() => {
             const btnContainer = document.querySelector('.bf-detail-copy');
             if (!btnContainer) return;
-
             const params = new URLSearchParams(window.location.search);
             const id = parseInt(params.get('id'));
             const media = params.get('media') || 'movie';
             const title = document.querySelector('.bf-detail-copy h1')?.textContent || 'Título';
-
             const favBtn = document.createElement('button');
             favBtn.className = 'btn-fav-detail';
             favBtn.setAttribute('data-id', id);
-
-            function updateFavButton() {
+            const update = () => {
                 const isFav = Favorites.isFavorited(id);
                 favBtn.innerHTML = isFav ? '❤️ Remover dos Favoritos' : '🤍 Adicionar aos Favoritos';
                 favBtn.classList.toggle('favorited', isFav);
-            }
-
+            };
             favBtn.addEventListener('click', () => {
-                if (Favorites.isFavorited(id)) {
-                    Favorites.remove(id);
-                } else {
-                    Favorites.add({
-                        id,
-                        title,
-                        poster_path: document.querySelector('.bf-detail-poster')?.style.backgroundImage?.match(/url\("(.+)"\)/)?.[1] || '',
-                        media_type: media
-                    });
-                }
-                updateFavButton();
+                if (Favorites.isFavorited(id)) Favorites.remove(id);
+                else Favorites.add({ id, title, poster_path: '', media_type: media });
+                update();
             });
-
-            updateFavButton();
+            update();
             const assistirBtn = btnContainer.querySelector('.btn-theme');
-            if (assistirBtn) {
-                assistirBtn.parentNode.insertBefore(favBtn, assistirBtn.nextSibling);
-            } else {
-                btnContainer.appendChild(favBtn);
-            }
+            if (assistirBtn) assistirBtn.parentNode.insertBefore(favBtn, assistirBtn.nextSibling);
+            else btnContainer.appendChild(favBtn);
         }, 800);
     }
 
     // ---------- TOAST ----------
-    function showToast(message, duration = 3000) {
+    function showToast(msg, dur = 3000) {
         const old = document.querySelector('.toast-notification');
         if (old) old.remove();
-        const toast = document.createElement('div');
-        toast.className = 'toast-notification';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), duration);
+        const t = document.createElement('div');
+        t.className = 'toast-notification';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), dur);
     }
     window.showToast = showToast;
 
-    // ---------- EXIBIR FAVORITOS ----------
+    // ---------- MODAIS DE FAVORITOS/HISTÓRICO ----------
     window.showFavorites = function() {
         const favs = Favorites.get();
-        if (favs.length === 0) { showToast('📭 Nenhum favorito ainda'); return; }
-        const modal = document.createElement('div');
-        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;overflow-y:auto;padding:20px;';
-        modal.innerHTML = `
-            <div style="max-width:1200px;margin:0 auto;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                    <h2 style="color:white;">❤️ Meus Favoritos (${favs.length})</h2>
-                    <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background:red;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;">Fechar</button>
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px;">
-                    ${favs.map(f => `
-                        <div style="background:#1a1a1a;border-radius:10px;overflow:hidden;cursor:pointer;" onclick="window.location.href='detalhes.html?id=${f.id}&media=${f.media}'">
-                            <img src="https://image.tmdb.org/t/p/w300${f.poster}" style="width:100%;height:225px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/300x450?text=Sem+Poster'">
-                            <div style="padding:10px;"><p style="color:white;font-size:0.8rem;margin:0;">${f.title}</p></div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+        if (!favs.length) { showToast('📭 Nenhum favorito'); return; }
+        showModalGrid('❤️ Meus Favoritos', favs);
     };
-
-    // ---------- EXIBIR HISTÓRICO ----------
     window.showHistory = function() {
-        const history = History.getLastWatched();
-        if (history.length === 0) { showToast('📭 Nenhum histórico ainda'); return; }
+        const hist = History.get().slice(0, 20);
+        if (!hist.length) { showToast('📭 Nenhum histórico'); return; }
+        showModalGrid('🕐 Histórico', hist);
+    };
+    function showModalGrid(title, items) {
         const modal = document.createElement('div');
         modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;overflow-y:auto;padding:20px;';
         modal.innerHTML = `
             <div style="max-width:1200px;margin:0 auto;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                    <h2 style="color:white;">🕐 Histórico Recente</h2>
+                    <h2 style="color:white;">${title} (${items.length})</h2>
                     <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background:red;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;">Fechar</button>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px;">
-                    ${history.map(h => `
-                        <div style="background:#1a1a1a;border-radius:10px;overflow:hidden;cursor:pointer;" onclick="window.location.href='detalhes.html?id=${h.id}&media=${h.media}'">
-                            <img src="https://image.tmdb.org/t/p/w300${h.poster}" style="width:100%;height:225px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/300x450?text=Sem+Poster'">
-                            <div style="padding:10px;"><p style="color:white;font-size:0.8rem;margin:0;">${h.title}</p><small style="color:#aaa;">${new Date(h.watchedAt).toLocaleDateString()}</small></div>
+                    ${items.map(item => `
+                        <div style="background:#1a1a1a;border-radius:10px;overflow:hidden;cursor:pointer;" onclick="window.location.href='detalhes.html?id=${item.id}&media=${item.media}'">
+                            <img src="https://image.tmdb.org/t/p/w300${item.poster || ''}" style="width:100%;height:225px;object-fit:cover;" onerror="this.src='https://via.placeholder.com/300x450?text=Sem+Poster'">
+                            <div style="padding:10px;"><p style="color:white;font-size:0.8rem;margin:0;">${item.title}</p></div>
                         </div>
                     `).join('')}
                 </div>
             </div>
         `;
         document.body.appendChild(modal);
-    };
-
-    // ---------- ADICIONAR FAVORITOS NOS CARDS (com MutationObserver) ----------
-    function observeCards() {
-        const observer = new MutationObserver((mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.addedNodes.length) {
-                    mutation.addedNodes.forEach(node => {
-                        if (node.nodeType === 1) { // Elemento
-                            if (node.matches && node.matches('.bf-card')) addFavButtonToCard(node);
-                            // Verifica descendentes
-                            const cards = node.querySelectorAll ? node.querySelectorAll('.bf-card') : [];
-                            cards.forEach(card => addFavButtonToCard(card));
-                        }
-                    });
-                }
-            }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-        // Adiciona nos cards já existentes
-        document.querySelectorAll('.bf-card').forEach(card => addFavButtonToCard(card));
     }
 
-    function addFavButtonToCard(card) {
-        if (card.querySelector('.fav-btn')) return;
-        const link = card.querySelector('a[href*="detalhes.html"]');
-        if (!link) return;
-        const url = new URL(link.href, window.location.origin);
-        const id = url.searchParams.get('id');
-        const media = url.searchParams.get('media') || 'movie';
-        const favBtn = document.createElement('button');
-        favBtn.className = 'fav-btn';
-        favBtn.innerHTML = Favorites.isFavorited(parseInt(id)) ? '❤️' : '🤍';
-        favBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            const title = card.querySelector('h3')?.textContent || 'Título';
-            if (Favorites.isFavorited(parseInt(id))) {
-                Favorites.remove(parseInt(id));
-                favBtn.innerHTML = '🤍';
-            } else {
-                Favorites.add({ id: parseInt(id), title, poster_path: '', media_type: media });
-                favBtn.innerHTML = '❤️';
-            }
-        });
-        card.style.position = 'relative';
-        card.appendChild(favBtn);
+    // ---------- OBSERVAR CARDS PARA BOTÃO FAVORITO ----------
+    function observeCards() {
+        const addBtn = (card) => {
+            if (card.querySelector('.fav-btn')) return;
+            const link = card.querySelector('a[href*="detalhes.html"]');
+            if (!link) return;
+            const url = new URL(link.href, window.location.origin);
+            const id = url.searchParams.get('id');
+            const media = url.searchParams.get('media') || 'movie';
+            const btn = document.createElement('button');
+            btn.className = 'fav-btn';
+            btn.innerHTML = Favorites.isFavorited(parseInt(id)) ? '❤️' : '🤍';
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                const title = card.querySelector('h3')?.textContent || 'Título';
+                if (Favorites.isFavorited(parseInt(id))) {
+                    Favorites.remove(parseInt(id));
+                    btn.innerHTML = '🤍';
+                } else {
+                    Favorites.add({ id: parseInt(id), title, poster_path: '', media_type: media });
+                    btn.innerHTML = '❤️';
+                }
+            });
+            card.style.position = 'relative';
+            card.appendChild(btn);
+        };
+        new MutationObserver(mutations => {
+            mutations.forEach(m => {
+                m.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) {
+                        if (node.matches && node.matches('.bf-card')) addBtn(node);
+                        if (node.querySelectorAll) node.querySelectorAll('.bf-card').forEach(addBtn);
+                    }
+                });
+            });
+        }).observe(document.body, { childList: true, subtree: true });
+        document.querySelectorAll('.bf-card').forEach(addBtn);
     }
 
     // ---------- INICIALIZAÇÃO ----------
-    function init() {
+    async function init() {
         Theme.init();
+        updateHeader();
         createFloatingButtons();
-        // Esconde botões flutuantes quando player está visível (mobile)
-        const playerSection = document.getElementById('player');
-        if (playerSection && window.innerWidth <= 768) {
-        const observer = new IntersectionObserver((entries) => {
-        const floating = document.querySelector('.floating-actions');
-        if (!floating) return;
-        if (entries[0].isIntersecting) {
-            floating.style.opacity = '0';
-            floating.style.pointerEvents = 'none';
-        } else {
-            floating.style.opacity = '1';
-            floating.style.pointerEvents = 'auto';
-        }
-    }, { threshold: 0.3 });
-    observer.observe(playerSection);
-}
         createShareMenu();
         createTrailerModal();
         createDetailFavoriteButton();
-        observeCards(); // substitui o setInterval
+        observeCards();
 
-        console.log("✅ Funcionalidades extras inicializadas");
+        if (isLoggedIn()) {
+            await Favorites.syncWithServer();
+        }
+
+        // Verifica mensagem de cadastro via URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === 'true') {
+            showToast('✅ Cadastro efetuado com sucesso! Bem-vindo!');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        console.log("✅ Extras inicializados");
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
 
     window.Favorites = Favorites;
     window.History = History;
     window.Theme = Theme;
+    window.logout = logout;
 })();

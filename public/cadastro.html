@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Login - BrasilFLIX</title>
+    <title>Criar Conta - BrasilFLIX</title>
     <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="./css/theme.css" rel="stylesheet" type="text/css" />
     <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
     <style>
-        body.login-page {
+        body.register-page {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .login-card {
+        .register-card {
             background: rgba(0,0,0,0.8);
             border-radius: 20px;
             padding: 40px;
@@ -23,13 +23,13 @@
             width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-        .login-card h2 { color: white; text-align: center; margin-bottom: 30px; }
-        .login-card .form-control {
+        .register-card h2 { color: white; text-align: center; margin-bottom: 30px; }
+        .register-card .form-control {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
         }
-        .login-card .btn-login {
+        .register-card .btn-register {
             background: #e91e63;
             border: none;
             width: 100%;
@@ -38,41 +38,50 @@
             font-weight: bold;
             transition: 0.3s;
         }
-        .login-card .btn-login:hover { background: #ff4081; transform: translateY(-2px); }
+        .register-card .btn-register:hover { background: #ff4081; transform: translateY(-2px); }
         .links a { color: #aaa; }
     </style>
 </head>
-<body class="login-page">
-    <div class="login-card">
-        <h2>🔐 Login BrasilFLIX</h2>
-        <form id="login-form">
+<body class="register-page">
+    <div class="register-card">
+        <h2>🔐 Criar Conta</h2>
+        <form id="register-form">
             <div class="form-group">
-                <input type="email" id="login-email" class="form-control" placeholder="Email" required />
+                <input type="text" id="reg-name" class="form-control" placeholder="Nome" required />
             </div>
             <div class="form-group">
-                <input type="password" id="login-password" class="form-control" placeholder="Senha" required />
+                <input type="email" id="reg-email" class="form-control" placeholder="Email" required />
             </div>
-            <button type="submit" class="btn btn-login">Entrar</button>
+            <div class="form-group">
+                <input type="password" id="reg-password" class="form-control" placeholder="Senha (mín. 6 caracteres)" required />
+            </div>
+            <button type="submit" class="btn btn-register">Criar Conta</button>
         </form>
         <p class="text-center mt-3 links">
-            Não tem conta? <a href="cadastro.html">Criar conta</a><br>
+            Já tem conta? <a href="login.html">Faça login</a><br>
             <a href="homepage-1.html">Voltar para Home</a>
         </p>
-        <div id="login-message" class="text-center mt-2" style="color:#ff4444;"></div>
+        <div id="register-message" class="text-center mt-2" style="color:#ff4444;"></div>
     </div>
 
     <script>
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const msgEl = document.getElementById('login-message');
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const msgEl = document.getElementById('register-message');
+
+            if (password.length < 6) {
+                msgEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+                return;
+            }
 
             try {
-                const response = await fetch('/api/auth/login', {
+                const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ name, email, password })
                 });
 
                 const data = await response.json();
@@ -82,7 +91,7 @@
                     localStorage.setItem('bf_user', JSON.stringify(data.user));
                     window.location.href = 'homepage-1.html';
                 } else {
-                    msgEl.textContent = data.error || 'Erro ao fazer login.';
+                    msgEl.textContent = data.error || 'Erro ao criar conta.';
                 }
             } catch (error) {
                 msgEl.textContent = 'Erro de conexão. Tente novamente.';

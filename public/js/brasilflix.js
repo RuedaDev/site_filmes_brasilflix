@@ -123,33 +123,78 @@
     // ==========================================
 
     function setupSearch() {
-        if (!titleInput) return;
+    if (!titleInput) return;
 
-        titleInput.addEventListener("input", function () {
-            clearTimeout(state.searchTimer);
-            state.searchTimer = setTimeout(function () {
-                state.searchQuery = titleInput.value.trim();
-                if (state.searchQuery) {
-                    searchCatalog();
+    titleInput.addEventListener("input", function () {
+        clearTimeout(state.searchTimer);
+        state.searchTimer = setTimeout(function () {
+            state.searchQuery = titleInput.value.trim();
+            if (state.searchQuery) {
+                if (state.pageType === "home") {
+                    searchHome(); // nova função
                 } else {
-                    if (state.pageType === "home") {
-                        loadHomePage();
-                    } else {
-                        loadCatalogPage(true);
-                    }
+                    searchCatalog();
                 }
-            }, 400);
-        });
+            } else {
+                if (state.pageType === "home") {
+                    const resultsDiv = document.getElementById('bf-search-results');
+                    if (resultsDiv) resultsDiv.style.display = 'none';
+                    showMessage("Digite um titulo ou explore as secoes abaixo.");
+                } else {
+                    loadCatalogPage(true);
+                }
+            }
+        }, 400);
+    });
 
-        if (titleForm) {
-            titleForm.addEventListener("submit", function (e) {
-                e.preventDefault();
-                state.searchQuery = titleInput ? titleInput.value.trim() : "";
+    if (titleForm) {
+        titleForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            state.searchQuery = titleInput ? titleInput.value.trim() : "";
+            if (state.pageType === "home") {
+                searchHome();
+            } else {
                 searchCatalog();
-            });
-        }
+            }
+        });
+    }
+    }
+    async function searchHome() {
+    const query = encodeURIComponent(state.searchQuery);
+    const media = "movie"; // pode buscar ambos, mas vamos simplificar
+    const year = yearInput && yearInput.value ? `&year=${encodeURIComponent(yearInput.value)}` : "";
+    const data = await apiGet(`/api/search?type=${media}&query=${query}${year}`);
+    const results = (data.results || []).slice(0, 10); // limita a 10 resultados
+    const container = document.getElementById('bf-search-results');
+    if (!container) return;
+
+    if (results.length === 0) {
+        container.innerHTML = '<p class="text-white text-center">Nenhum resultado encontrado.</p>';
+        container.style.display = 'block';
+        showMessage("Nenhum resultado encontrado.");
+        return;
     }
 
+    container.innerHTML = results.map(item => {
+        const title = item.title || item.name || 'Sem título';
+        const poster = posterUrl(item.poster_path);
+        const overview = item.overview ? item.overview.substring(0, 150) + '...' : 'Sinopse indisponível.';
+        return `
+            <div class="row mb-4 p-3" style="background:rgba(0,0,0,0.6); border-radius:10px;">
+                <div class="col-md-3">
+                    <img src="${poster}" class="img-fluid rounded" style="max-height:200px;" onerror="this.src='${FALLBACK_POSTER}'">
+                </div>
+                <div class="col-md-9">
+                    <h4 class="text-white">${escapeHtml(title)}</h4>
+                    <p class="text-muted">${escapeHtml(overview)}</p>
+                    <a href="detalhes.html?id=${item.id}&media=${media}" class="btn btn-theme btn-sm">▶ Assistir</a>
+                </div>
+            </div>
+        `;
+    }).join('');
+    container.style.display = 'block';
+    showMessage(`${results.length} resultado(s)`);
+}
     // ==========================================
     // INFINITE SCROLL
     // ==========================================
