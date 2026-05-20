@@ -272,3 +272,39 @@
     font-size: 1.6rem !important;
     font-weight: bold;
 }
+/* Corrige botões flutuantes no mobile */
+@media (max-width: 768px) {
+    .floating-actions {
+        bottom: 20px !important;
+        right: 15px !important;
+        gap: 8px;
+    }
+    .floating-btn {
+        min-width: 40px;
+        height: 40px;
+        padding: 0 10px;
+        font-size: 1rem;
+    }
+    .share-menu {
+        bottom: 70px;
+        right: 60px;
+        min-width: 180px;
+    }
+    .modal-trailer-content {
+        width: 95%;
+    }
+    .modal-trailer iframe {
+        height: 250px;
+    }
+    /* Ajuste dos cards em grades */
+    .bf-catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+    /* Botão do trailer e favoritar em detalhes */
+    .btn-trailer, .btn-fav-detail {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+}

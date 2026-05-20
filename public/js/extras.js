@@ -1,5 +1,5 @@
 // ==========================================
-// FUNCIONALIDADES EXTRAS - BRASILFLIX
+// FUNCIONALIDADES EXTRAS - BRASILFLIX (OTIMIZADO)
 // ==========================================
 
 (function() {
@@ -7,12 +7,10 @@
 
     console.log("🌟 Funcionalidades Extras carregadas");
 
-    // ==========================================
-    // SISTEMA DE FAVORITOS
-    // ==========================================
+    // ---------- SISTEMA DE FAVORITOS ----------
     const Favorites = {
         get() {
-            return JSON.parse(localStorage.getItem('bf_favorites') || '[]');
+            try { return JSON.parse(localStorage.getItem('bf_favorites') || '[]'); } catch(e) { return []; }
         },
         add(item) {
             const favs = this.get();
@@ -29,32 +27,22 @@
             }
         },
         remove(id) {
-            let favs = this.get();
-            favs = favs.filter(f => f.id !== id);
+            let favs = this.get().filter(f => f.id !== id);
             localStorage.setItem('bf_favorites', JSON.stringify(favs));
             showToast('💔 Removido dos favoritos');
         },
         isFavorited(id) {
             return this.get().some(f => f.id === id);
-        },
-        updateCount() {
-            const count = this.get().length;
-            document.querySelectorAll('.fav-count').forEach(el => {
-                el.textContent = count;
-            });
         }
     };
 
-    // ==========================================
-    // HISTÓRICO DE VISUALIZAÇÃO
-    // ==========================================
+    // ---------- HISTÓRICO ----------
     const History = {
         get() {
-            return JSON.parse(localStorage.getItem('bf_history') || '[]');
+            try { return JSON.parse(localStorage.getItem('bf_history') || '[]'); } catch(e) { return []; }
         },
         add(item) {
-            let history = this.get();
-            history = history.filter(h => h.id !== item.id);
+            let history = this.get().filter(h => h.id !== item.id);
             history.unshift({
                 id: item.id,
                 title: item.title || item.name,
@@ -65,25 +53,17 @@
             if (history.length > 50) history.pop();
             localStorage.setItem('bf_history', JSON.stringify(history));
         },
-        getLastWatched() {
-            return this.get().slice(0, 10);
-        }
+        getLastWatched() { return this.get().slice(0, 10); }
     };
 
-    // ==========================================
-    // MODO ESCURO/CLARO
-    // ==========================================
+    // ---------- TEMA ----------
     const Theme = {
         init() {
             const saved = localStorage.getItem('bf_theme') || 'dark';
             this.apply(saved);
         },
         apply(theme) {
-            if (theme === 'light') {
-                document.body.classList.add('light-mode');
-            } else {
-                document.body.classList.remove('light-mode');
-            }
+            document.body.classList.toggle('light-mode', theme === 'light');
             localStorage.setItem('bf_theme', theme);
             this.updateIcon();
         },
@@ -100,49 +80,34 @@
         }
     };
 
-    // ==========================================
-    // BOTÕES FLUTUANTES (TODOS NO CANTO DIREITO)
-    // ==========================================
+    // ---------- BOTÕES FLUTUANTES ----------
     function createFloatingButtons() {
-        const old = document.querySelector('.floating-actions');
-        if (old) old.remove();
+        const existing = document.querySelector('.floating-actions');
+        if (existing) existing.remove();
 
-        const floatingDiv = document.createElement('div');
-        floatingDiv.className = 'floating-actions';
-        floatingDiv.innerHTML = `
-            <button class="floating-btn theme" id="theme-toggle-btn" title="Alternar tema">
-                🌙<span class="floating-label">Tema</span>
-            </button>
-            <button class="floating-btn favorites" id="fav-btn" title="Favoritos">
-                ❤️<span class="floating-label">Favoritos</span>
-            </button>
-            <button class="floating-btn history" id="hist-btn" title="Histórico">
-                🕐<span class="floating-label">Histórico</span>
-            </button>
-            <button class="floating-btn share" id="share-btn" title="Compartilhar">
-                📤<span class="floating-label">Compartilhar</span>
-            </button>
-            <button class="floating-btn top" id="top-btn" title="Voltar ao topo">
-                ⬆️<span class="floating-label">Topo</span>
-            </button>
+        const div = document.createElement('div');
+        div.className = 'floating-actions';
+        div.innerHTML = `
+            <button class="floating-btn theme" id="theme-toggle-btn" title="Alternar tema">🌙<span class="floating-label">Tema</span></button>
+            <button class="floating-btn favorites" id="fav-btn" title="Favoritos">❤️<span class="floating-label">Favoritos</span></button>
+            <button class="floating-btn history" id="hist-btn" title="Histórico">🕐<span class="floating-label">Histórico</span></button>
+            <button class="floating-btn share" id="share-btn" title="Compartilhar">📤<span class="floating-label">Compartilhar</span></button>
+            <button class="floating-btn top" id="top-btn" title="Voltar ao topo">⬆️<span class="floating-label">Topo</span></button>
         `;
-        document.body.appendChild(floatingDiv);
+        document.body.appendChild(div);
 
         document.getElementById('theme-toggle-btn').addEventListener('click', () => Theme.toggle());
         document.getElementById('fav-btn').addEventListener('click', () => window.showFavorites());
         document.getElementById('hist-btn').addEventListener('click', () => window.showHistory());
         document.getElementById('share-btn').addEventListener('click', () => window.toggleShareMenu());
         document.getElementById('top-btn').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
-
         Theme.updateIcon();
     }
 
-    // ==========================================
-    // MENU DE COMPARTILHAMENTO
-    // ==========================================
+    // ---------- MENU COMPARTILHAR ----------
     function createShareMenu() {
-        const oldMenu = document.getElementById('share-menu');
-        if (oldMenu) oldMenu.remove();
+        const existing = document.getElementById('share-menu');
+        if (existing) existing.remove();
 
         const menu = document.createElement('div');
         menu.className = 'share-menu';
@@ -150,10 +115,7 @@
         const currentUrl = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(document.title);
         menu.innerHTML = `
-            <div class="share-menu-header">
-                <span>📤 Compartilhar</span>
-                <button class="share-close-btn" onclick="document.getElementById('share-menu').classList.remove('show')">✕</button>
-            </div>
+            <div class="share-menu-header"><span>📤 Compartilhar</span><button class="share-close-btn" onclick="document.getElementById('share-menu').classList.remove('show')">✕</button></div>
             <button class="share-btn whatsapp" onclick="window.open('https://wa.me/?text=${title}%20${currentUrl}')">📱 WhatsApp</button>
             <button class="share-btn facebook" onclick="window.open('https://facebook.com/sharer/sharer.php?u=${currentUrl}')">📘 Facebook</button>
             <button class="share-btn twitter" onclick="window.open('https://twitter.com/intent/tweet?url=${currentUrl}&text=${title}')">🐦 Twitter</button>
@@ -175,12 +137,10 @@
         if (menu) menu.classList.toggle('show');
     };
 
-    // ==========================================
-    // MODAL DE TRAILER
-    // ==========================================
+    // ---------- MODAL TRAILER ----------
     function createTrailerModal() {
-        const oldModal = document.getElementById('trailer-modal');
-        if (oldModal) oldModal.remove();
+        const existing = document.getElementById('trailer-modal');
+        if (existing) existing.remove();
 
         const modal = document.createElement('div');
         modal.className = 'modal-trailer';
@@ -210,9 +170,7 @@
         }
     };
 
-    // ==========================================
-    // BOTÃO DE FAVORITAR NA PÁGINA DE DETALHES
-    // ==========================================
+    // ---------- BOTÃO DE FAVORITAR (DETALHES) ----------
     function createDetailFavoriteButton() {
         if (document.body.getAttribute('data-bf-page') !== 'detalhes') return;
 
@@ -250,7 +208,6 @@
             });
 
             updateFavButton();
-
             const assistirBtn = btnContainer.querySelector('.btn-theme');
             if (assistirBtn) {
                 assistirBtn.parentNode.insertBefore(favBtn, assistirBtn.nextSibling);
@@ -260,30 +217,22 @@
         }, 800);
     }
 
-    // ==========================================
-    // TOAST DE NOTIFICAÇÃO
-    // ==========================================
+    // ---------- TOAST ----------
     function showToast(message, duration = 3000) {
-        const oldToast = document.querySelector('.toast-notification');
-        if (oldToast) oldToast.remove();
+        const old = document.querySelector('.toast-notification');
+        if (old) old.remove();
         const toast = document.createElement('div');
         toast.className = 'toast-notification';
         toast.textContent = message;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), duration);
     }
-
     window.showToast = showToast;
 
-    // ==========================================
-    // EXIBIR FAVORITOS
-    // ==========================================
+    // ---------- EXIBIR FAVORITOS ----------
     window.showFavorites = function() {
         const favs = Favorites.get();
-        if (favs.length === 0) {
-            showToast('📭 Nenhum favorito ainda');
-            return;
-        }
+        if (favs.length === 0) { showToast('📭 Nenhum favorito ainda'); return; }
         const modal = document.createElement('div');
         modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;overflow-y:auto;padding:20px;';
         modal.innerHTML = `
@@ -305,15 +254,10 @@
         document.body.appendChild(modal);
     };
 
-    // ==========================================
-    // EXIBIR HISTÓRICO
-    // ==========================================
+    // ---------- EXIBIR HISTÓRICO ----------
     window.showHistory = function() {
         const history = History.getLastWatched();
-        if (history.length === 0) {
-            showToast('📭 Nenhum histórico ainda');
-            return;
-        }
+        if (history.length === 0) { showToast('📭 Nenhum histórico ainda'); return; }
         const modal = document.createElement('div');
         modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;overflow-y:auto;padding:20px;';
         modal.innerHTML = `
@@ -335,44 +279,77 @@
         document.body.appendChild(modal);
     };
 
-    // ==========================================
-    // INICIALIZAÇÃO
-    // ==========================================
+    // ---------- ADICIONAR FAVORITOS NOS CARDS (com MutationObserver) ----------
+    function observeCards() {
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length) {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) { // Elemento
+                            if (node.matches && node.matches('.bf-card')) addFavButtonToCard(node);
+                            // Verifica descendentes
+                            const cards = node.querySelectorAll ? node.querySelectorAll('.bf-card') : [];
+                            cards.forEach(card => addFavButtonToCard(card));
+                        }
+                    });
+                }
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        // Adiciona nos cards já existentes
+        document.querySelectorAll('.bf-card').forEach(card => addFavButtonToCard(card));
+    }
+
+    function addFavButtonToCard(card) {
+        if (card.querySelector('.fav-btn')) return;
+        const link = card.querySelector('a[href*="detalhes.html"]');
+        if (!link) return;
+        const url = new URL(link.href, window.location.origin);
+        const id = url.searchParams.get('id');
+        const media = url.searchParams.get('media') || 'movie';
+        const favBtn = document.createElement('button');
+        favBtn.className = 'fav-btn';
+        favBtn.innerHTML = Favorites.isFavorited(parseInt(id)) ? '❤️' : '🤍';
+        favBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const title = card.querySelector('h3')?.textContent || 'Título';
+            if (Favorites.isFavorited(parseInt(id))) {
+                Favorites.remove(parseInt(id));
+                favBtn.innerHTML = '🤍';
+            } else {
+                Favorites.add({ id: parseInt(id), title, poster_path: '', media_type: media });
+                favBtn.innerHTML = '❤️';
+            }
+        });
+        card.style.position = 'relative';
+        card.appendChild(favBtn);
+    }
+
+    // ---------- INICIALIZAÇÃO ----------
     function init() {
         Theme.init();
         createFloatingButtons();
+        // Esconde botões flutuantes quando player está visível (mobile)
+        const playerSection = document.getElementById('player');
+        if (playerSection && window.innerWidth <= 768) {
+        const observer = new IntersectionObserver((entries) => {
+        const floating = document.querySelector('.floating-actions');
+        if (!floating) return;
+        if (entries[0].isIntersecting) {
+            floating.style.opacity = '0';
+            floating.style.pointerEvents = 'none';
+        } else {
+            floating.style.opacity = '1';
+            floating.style.pointerEvents = 'auto';
+        }
+    }, { threshold: 0.3 });
+    observer.observe(playerSection);
+}
         createShareMenu();
         createTrailerModal();
-        createDetailFavoriteButton();  // Agora funciona
-
-        // Botões de favorito nos cards (dinâmico)
-        setInterval(() => {
-            document.querySelectorAll('.bf-card').forEach(card => {
-                if (card.querySelector('.fav-btn')) return;
-                const link = card.querySelector('a[href*="detalhes.html"]');
-                if (!link) return;
-                const url = new URL(link.href, window.location.origin);
-                const id = url.searchParams.get('id');
-                const media = url.searchParams.get('media') || 'movie';
-                const favBtn = document.createElement('button');
-                favBtn.className = 'fav-btn';
-                favBtn.innerHTML = Favorites.isFavorited(parseInt(id)) ? '❤️' : '🤍';
-                favBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const title = card.querySelector('h3')?.textContent || 'Título';
-                    if (Favorites.isFavorited(parseInt(id))) {
-                        Favorites.remove(parseInt(id));
-                        favBtn.innerHTML = '🤍';
-                    } else {
-                        Favorites.add({ id: parseInt(id), title, poster_path: '', media_type: media });
-                        favBtn.innerHTML = '❤️';
-                    }
-                });
-                card.style.position = 'relative';
-                card.appendChild(favBtn);
-            });
-        }, 2000);
+        createDetailFavoriteButton();
+        observeCards(); // substitui o setInterval
 
         console.log("✅ Funcionalidades extras inicializadas");
     }

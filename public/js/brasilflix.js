@@ -20,8 +20,8 @@
     // CONFIGURAÇÕES
     // ==========================================
 
-    const IMAGE_BASE = "https://image.tmdb.org/t/p/w780";
-    const BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
+    const IMAGE_BASE = "https://image.tmdb.org/t/p/w342";
+    const BACKDROP_BASE = "https://image.tmdb.org/t/p/w780";
     const FALLBACK_POSTER = "https://via.placeholder.com/500x750?text=BrasilFLIX";
     const MAX_AUTO_PAGES = 50;
     const INITIAL_HOME_PAGES = 8;
@@ -316,7 +316,7 @@
                                 <small>📺 Último episódio: ${escapeHtml(lastEpisode.name || '')} (T${lastEpisode.season_number}E${lastEpisode.episode_number})</small>
                             </div>
                         ` : ''}
-                        <a class="btn btn-theme" href="#player">▶ Assistir</a>
+                        
                     </div>
                 </div>
             </section>
