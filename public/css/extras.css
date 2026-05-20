@@ -308,3 +308,49 @@
         margin: 5px 0;
     }
 }
+/* ==========================================
+   CORREÇÕES MOBILE - PLAYER NÃO SOBREPOR
+   ========================================== */
+
+/* Garante que o player tenha espaço suficiente embaixo */
+@media (max-width: 768px) {
+    .bf-player-section {
+        padding-bottom: 100px !important; /* espaço para os botões flutuantes */
+    }
+
+    .bf-player-shell {
+        margin-bottom: 20px;
+    }
+
+    /* Ajusta posição dos botões flutuantes para não cobrirem o player */
+    .floating-actions {
+        bottom: 25px !important;
+        right: 15px !important;
+        gap: 8px;
+    }
+
+    /* Se quiser deixar os botões ainda menores */
+    .floating-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    /* Esconde o texto dos botões no mobile (só ícone) */
+    .floating-btn .floating-label {
+        display: none;
+    }
+
+    /* Aumenta área de toque dos botões */
+    .floating-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Player iframe altura menor */
+    .bf-player-shell iframe {
+        height: 250px;
+    }
+}
