@@ -25,6 +25,7 @@ app.use(express.static(PUBLIC_DIR));
 app.get("/", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
 });
+
 // ==================== CSP PERMISSIVO PARA DESENVOLVIMENTO ====================
 app.use((req, res, next) => {
     res.setHeader(
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
     next();
 });
 // ===========================================================================
+
 // Health check simples para confirmar se o servidor e a chave estao prontos.
 app.get("/api/health", (req, res) => {
     res.json({
@@ -154,14 +156,232 @@ app.get("/api/tmdb/find/:imdbId", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
+// ==================== ROTAS DE DORAMAS ====================
+
+// Doramas populares (Coreanos, Japoneses, Chineses)
+app.get("/api/doramas/popular", async (req, res) => {
+    const page = normalizePage(req.query.page);
+    
+    const data = await tmdbRequest("/discover/tv", {
+        page,
+        sort_by: "popularity.desc",
+        with_original_language: "ko|ja|zh",
+        with_genres: "18,10766,10751,35,10759,9648",
+        "vote_count.gte": 10,
+        with_origin_country: "KR|JP|CN|TW",
+        without_genres: "16,10764"
+    });
+    
+    sendTmdbResult(res, data);
+});
+
+// Doramas em tendência
+app.get("/api/doramas/trending", async (req, res) => {
+    const page = normalizePage(req.query.page);
+    
+    const data = await tmdbRequest("/trending/tv/week", {
+        page,
+        language: "pt-BR"
+    });
+    
+    // Filtra apenas conteúdo asiático
+    if (data.results) {
+        data.results = data.results.filter(item => 
+            item.origin_country && 
+            item.origin_country.some(country => ["KR", "JP", "CN", "TW", "TH"].includes(country))
+        );
+    }
+    
+    sendTmdbResult(res, data);
+});
+
+// Busca de doramas
+app.get("/api/doramas/search", async (req, res) => {
+    const query = String(req.query.query || "").trim();
+    const page = normalizePage(req.query.page);
+    
+    if (!query) {
+        res.json({ page: 1, results: [], total_pages: 0, total_results: 0 });
+        return;
+    }
+    
+    const data = await tmdbRequest("/search/tv", {
+        query,
+        page,
+        include_adult: false,
+        language: "pt-BR"
+    });
+    
+    // Filtra resultados asiáticos
+    if (data.results) {
+        data.results = data.results.filter(item =>
+            item.original_language && ["ko", "ja", "zh", "th"].includes(item.original_language)
+        );
+    }
+    
+    sendTmdbResult(res, data);
+});
+
+// Doramas por país específico
+app.get("/api/doramas/by-country/:country", async (req, res) => {
+    const page = normalizePage(req.query.page);
+    const country = req.params.country.toUpperCase();
+    
+    const countryMap = {
+        "KR": { language: "ko", name: "Coreia do Sul" },
+        "JP": { language: "ja", name: "Japão" },
+        "CN": { language: "zh", name: "China" },
+        "TW": { language: "zh", name: "Taiwan" },
+        "TH": { language: "th", name: "Tailândia" }
+    };
+    
+    if (!countryMap[country]) {
+        res.status(400).json({ error: "País não suportado" });
+        return;
+    }
+    
+    const data = await tmdbRequest("/discover/tv", {
+        page,
+        sort_by: "popularity.desc",
+        with_original_language: countryMap[country].language,
+        with_origin_country: country,
+        "vote_count.gte": 5
+    });
+    
+    sendTmdbResult(res, data);
+});
+
+// ==================== ROTAS DE ANIMES ====================
+
+// Animes populares
+app.get("/api/animes/popular", async (req, res) => {
+    const page = normalizePage(req.query.page);
+    
+    const data = await tmdbRequest("/discover/tv", {
+        page,
+        sort_by: "popularity.desc",
+        with_genres: "16", // Gênero de animação
+        with_original_language: "ja", // Japonês
+        with_origin_country: "JP",
+        "vote_count.gte": 10,
+        without_genres: "10764,10767" // Remove reality e talk show
+    });
+    
+    sendTmdbResult(res, data);
+});
+
+// Animes em tendência
+app.get("/api/animes/trending", async (req, res) => {
+    const page = normalizePage(req.query.page);
+    
+    const data = await tmdbRequest("/trending/tv/week", {
+        page,
+        language: "pt-BR"
+    });
+    
+    // Filtra apenas animes
+    if (data.results) {
+        data.results = data.results.filter(item =>
+            item.genre_ids && item.genre_ids.includes(16) &&
+            item.original_language === "ja"
+        );
+    }
+    
+    sendTmdbResult(res, data);
+});
+
+// Busca de animes
+app.get("/api/animes/search", async (req, res) => {
+    const query = String(req.query.query || "").trim();
+    const page = normalizePage(req.query.page);
+    
+    if (!query) {
+        res.json({ page: 1, results: [], total_pages: 0, total_results: 0 });
+        return;
+    }
+    
+    const data = await tmdbRequest("/search/tv", {
+        query,
+        page,
+        include_adult: false,
+        language: "pt-BR"
+    });
+    
+    // Filtra apenas animes (gênero 16 = animação, idioma japonês)
+    if (data.results) {
+        data.results = data.results.filter(item =>
+            item.genre_ids && item.genre_ids.includes(16) &&
+            item.original_language === "ja"
+        );
+    }
+    
+    sendTmdbResult(res, data);
+});
+
+// Animes por gênero específico
+app.get("/api/animes/by-genre/:genreId", async (req, res) => {
+    const page = normalizePage(req.query.page);
+    const genreId = req.params.genreId;
+    
+    // Gêneros populares de anime no TMDB
+    const validGenres = {
+        "16": "Animação",
+        "10759": "Ação & Aventura",
+        "35": "Comédia",
+        "18": "Drama",
+        "10765": "Sci-Fi & Fantasia",
+        "9648": "Mistério",
+        "10751": "Família"
+    };
+    
+    if (!validGenres[genreId]) {
+        res.status(400).json({ error: "Gênero não suportado para animes" });
+        return;
+    }
+    
+    const data = await tmdbRequest("/discover/tv", {
+        page,
+        sort_by: "popularity.desc",
+        with_genres: `16,${genreId}`,
+        with_original_language: "ja",
+        with_origin_country: "JP",
+        "vote_count.gte": 5
+    });
+    
+    sendTmdbResult(res, data);
+});
+
+// Animes por temporada
+app.get("/api/animes/seasonal", async (req, res) => {
+    const page = normalizePage(req.query.page);
+    const year = req.query.year || new Date().getFullYear();
+    const season = req.query.season || getCurrentSeason();
+    
+    const data = await tmdbRequest("/discover/tv", {
+        page,
+        sort_by: "popularity.desc",
+        with_genres: "16",
+        with_original_language: "ja",
+        first_air_date_year: year,
+        "vote_count.gte": 5,
+        with_origin_country: "JP"
+    });
+    
+    sendTmdbResult(res, data);
+});
+
 // Qualquer rota desconhecida do frontend volta para a home.
 app.use((req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
 });
 
 app.listen(PORT, () => {
-    console.log(`BrasilFLIX online em http://localhost:${PORT}`);
+    console.log(`✅ BrasilFLIX online em http://localhost:${PORT}`);
+    console.log(`🎌 Rotas de Doramas: /api/doramas/*`);
+    console.log(`🎬 Rotas de Animes: /api/animes/*`);
 });
+
+// ==================== FUNÇÕES AUXILIARES ====================
 
 // Faz requisicoes ao TMDB sempre com idioma pt-BR e chave protegida no backend.
 async function tmdbRequest(endpoint, params = {}) {
@@ -188,6 +408,7 @@ async function tmdbRequest(endpoint, params = {}) {
 
         return response.data;
     } catch (error) {
+        console.error(`❌ Erro TMDB: ${endpoint}`, error.message);
         return {
             error: "tmdb_request_failed",
             status: error.response ? error.response.status : 500,
@@ -236,4 +457,13 @@ function removeEmpty(params) {
     return Object.fromEntries(
         Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== "")
     );
+}
+
+// Retorna a estação atual para animes sazonais
+function getCurrentSeason() {
+    const month = new Date().getMonth();
+    if (month >= 0 && month <= 2) return "winter";
+    if (month >= 3 && month <= 5) return "spring";
+    if (month >= 6 && month <= 8) return "summer";
+    return "fall";
 }

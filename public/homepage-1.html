@@ -1,27 +1,122 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title>BrasilFLIX - Filmes online gratis</title>
-        <meta name="description" content="Assista filmes, series, doramas e animes online pelo catalogo BrasilFLIX." />
-        <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-        <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
-        <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
-        <link href="./magnific-popup/magnific-popup.css" rel="stylesheet" type="text/css" />
-        <link href="./slick/slick.css" rel="stylesheet" type="text/css" />
-        <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700" rel="stylesheet" type="text/css" />
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" type="text/css" />
-        <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
-        <link href="./css/theme.css" rel="stylesheet" type="text/css" />
-        <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-    </head>
-    <body class="body brasilflix-body" data-bf-page="home">
-        <header class="header header-horizontal header-view-pannel brasilflix-header">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>BrasilFLIX - Filmes online gratis</title>
+    <meta name="description" content="Assista filmes, series, doramas e animes online pelo catalogo BrasilFLIX." />
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
+    <link href="./magnific-popup/magnific-popup.css" rel="stylesheet" type="text/css" />
+    <link href="./slick/slick.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" type="text/css" />
+    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="body brasilflix-body" data-bf-page="home">
+    <header class="header header-horizontal header-view-pannel brasilflix-header">
+        <div class="container">
+            <nav class="navbar">
+                <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
+                    <span class="logo-element">
+                        <span class="logo-tape">
+                            <span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span>
+                        </span>
+                        <span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span>
+                    </span>
+                </a>
+                <button class="navbar-toggler" type="button" aria-label="Abrir menu">
+                    <span class="th-dots-active-close th-dots th-bars">
+                        <span></span><span></span><span></span>
+                    </span>
+                </button>
+                <div class="navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
+                        <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
+                    </ul>
+                    <div class="navbar-extra">
+                        <a class="btn-theme btn" href="login.html"><i class="fas fa-user"></i>&nbsp;&nbsp;Login</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="inicio" class="bf-hero section-text-white">
+            <div class="bf-hero-media" aria-hidden="true"></div>
+            <div class="bf-hero-shade" aria-hidden="true"></div>
+            <div class="container bf-hero-content bf-hero-centered">
+                <div class="bf-kicker text-uppercase">Cinema online</div>
+                <h1>BrasilFLIX</h1>
+                <p class="bf-hero-copy">Filmes e series gratuitos, com detalhes, sinopse e player reunidos na pagina do titulo.</p>
+                <form id="bf-title-form" class="bf-hero-search" autocomplete="off">
+                    <input id="bf-title-input" class="form-control" type="text" placeholder="Buscar filme ou serie" />
+                    <input id="bf-year-input" class="form-control" type="number" placeholder="Ano" min="1900" max="2100" />
+                    <button class="btn btn-theme" type="submit"><i class="fas fa-search"></i>&nbsp;&nbsp;Buscar</button>
+                </form>
+                <p id="bf-message" class="bf-message bf-hero-message" role="status">Digite um titulo ou explore as secoes abaixo.</p>
+                <div class="bf-hero-stats">
+                    <span><strong>Filmes</strong></span>
+                    <span><strong>Series</strong></span>
+                    <span>Animes e Doramas</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="catalogo" class="bf-catalog-section section-long section-text-white">
             <div class="container">
-                <nav class="navbar">
-                    <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
+                <div id="bf-category-filters" class="bf-filter-row" aria-label="Categorias"></div>
+                <div class="bf-home-block">
+                    <div class="bf-section-head">
+                        <span class="bf-kicker text-uppercase">Filmes</span>
+                        <h2 class="section-title text-uppercase">Filmes em destaque</h2>
+                    </div>
+                    <div id="bf-home-movies" class="bf-catalog-grid" aria-live="polite"></div>
+                </div>
+                <div class="bf-home-block">
+                    <div class="bf-section-head">
+                        <span class="bf-kicker text-uppercase">Series</span>
+                        <h2 class="section-title text-uppercase">Series em destaque</h2>
+                    </div>
+                    <div id="bf-home-series" class="bf-catalog-grid" aria-live="polite"></div>
+                </div>
+                <div class="bf-home-block">
+                    <div class="bf-section-head">
+                        <span class="bf-kicker text-uppercase">Animes</span>
+                        <h2 class="section-title text-uppercase">Animes em destaque</h2>
+                    </div>
+                    <div id="bf-home-animes" class="bf-catalog-grid" aria-live="polite"></div>
+                </div>
+                <div class="bf-home-block">
+                    <div class="bf-section-head">
+                        <span class="bf-kicker text-uppercase">Doramas</span>
+                        <h2 class="section-title text-uppercase">Doramas em destaque</h2>
+                    </div>
+                    <div id="bf-home-doramas" class="bf-catalog-grid" aria-live="polite"></div>
+                </div>
+                <div id="bf-catalog" class="bf-catalog-grid" aria-live="polite"></div>
+            </div>
+        </section>
+    </main>
+
+    <a class="scroll-top disabled" href="#"><i class="fas fa-angle-up" aria-hidden="true"></i></a>
+
+    <footer class="section-text-white footer footer-links bg-darken bf-footer">
+        <div class="footer-body container">
+            <div class="row">
+                <div class="col-md-6">
+                    <a class="footer-logo" href="./homepage-1.html">
                         <span class="logo-element">
                             <span class="logo-tape">
                                 <span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span>
@@ -29,129 +124,44 @@
                             <span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span>
                         </span>
                     </a>
-                    <button class="navbar-toggler" type="button" aria-label="Abrir menu">
-                        <span class="th-dots-active-close th-dots th-bars">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </span>
-                    </button>
-                    <div class="navbar-collapse">
-                        <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
-                            <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
-                            <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
-                            <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
-                        </ul>
-                        <div class="navbar-extra">
-                            <a class="btn-theme btn" href="#catalogo"><i class="fas fa-search"></i>&nbsp;&nbsp;Buscar</a>
-                        </div>
-                    </div>
-                </nav>
-            </div>
-        </header>
-
-        <main>
-            <section id="inicio" class="bf-hero section-text-white">
-                <div class="bf-hero-media" aria-hidden="true"></div>
-                <div class="bf-hero-shade" aria-hidden="true"></div>
-                <div class="container bf-hero-content bf-hero-centered">
-                    <div class="bf-kicker text-uppercase">Cinema online</div>
-                    <h1>BrasilFLIX</h1>
-                    <p class="bf-hero-copy">Filmes e series em um catalogo visual, com detalhes, sinopse e player reunidos na pagina do titulo.</p>
-                    <form id="bf-title-form" class="bf-hero-search" autocomplete="off">
-                        <input id="bf-title-input" class="form-control" type="text" placeholder="Buscar filme ou serie" />
-                        <input id="bf-year-input" class="form-control" type="number" placeholder="Ano" min="1900" max="2100" />
-                        <button class="btn btn-theme" type="submit"><i class="fas fa-search"></i>&nbsp;&nbsp;Buscar</button>
-                    </form>
-                    <p id="bf-message" class="bf-message bf-hero-message" role="status">Digite um titulo ou explore as secoes abaixo.</p>
-                    <div class="bf-hero-stats">
-                        <span><strong>Filmes</strong></span>
-                        <span><strong>Series</strong></span>
-                        <span>Dados do TMDB</span>
-                    </div>
+                    <p class="footer-text">Site de filmes, series, animes e doramas GRATUITOS. Não hospedamos nenhum conteúdo.</p>
                 </div>
-            </section>
-
-            <section id="catalogo" class="bf-catalog-section section-long section-text-white">
-                <div class="container">
-                    <div id="bf-category-filters" class="bf-filter-row" aria-label="Categorias"></div>
-                    <div class="bf-home-block">
-                        <div class="bf-section-head">
-                            <span class="bf-kicker text-uppercase">Filmes</span>
-                            <h2 class="section-title text-uppercase">Filmes em destaque</h2>
-                        </div>
-                        <div id="bf-home-movies" class="bf-catalog-grid" aria-live="polite"></div>
-                    </div>
-                    <div class="bf-home-block">
-                        <div class="bf-section-head">
-                            <span class="bf-kicker text-uppercase">Series</span>
-                            <h2 class="section-title text-uppercase">Series em destaque</h2>
-                        </div>
-                        <div id="bf-home-series" class="bf-catalog-grid" aria-live="polite"></div>
-                    </div>
-                    <div id="bf-catalog" class="bf-catalog-grid" aria-live="polite"></div>
+                <div class="col-md-3">
+                    <h5 class="footer-title text-uppercase">Navegacao</h5>
+                    <ul class="list-unstyled list-wide footer-content">
+                        <li><a class="content-link" href="filmes.html">Filmes</a></li>
+                        <li><a class="content-link" href="series.html">Series</a></li>
+                        <li><a class="content-link" href="doramas.html">Doramas</a></li>
+                        <li><a class="content-link" href="animes.html">Animes</a></li>
+                    </ul>
                 </div>
-            </section>
-        </main>
-
-        <a class="scroll-top disabled" href="#"><i class="fas fa-angle-up" aria-hidden="true"></i></a>
-
-        <footer class="section-text-white footer footer-links bg-darken bf-footer">
-            <div class="footer-body container">
-                <div class="row">
-                    <div class="col-md-6">
-                        <a class="footer-logo" href="./homepage-1.html">
-                            <span class="logo-element">
-                                <span class="logo-tape">
-                                    <span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span>
-                                </span>
-                                <span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span>
-                            </span>
-                        </a>
-                        <p class="footer-text">Site estatico com player via EmbedPlayAPI. Os embeds ficam cadastrados no catalogo do site.</p>
-                    </div>
-                    <div class="col-md-3">
-                        <h5 class="footer-title text-uppercase">Navegacao</h5>
-                        <ul class="list-unstyled list-wide footer-content">
-                            <li><a class="content-link" href="filmes.html">Filmes</a></li>
-                            <li><a class="content-link" href="series.html">Series</a></li>
-                            <li><a class="content-link" href="doramas.html">Doramas</a></li>
-                            <li><a class="content-link" href="animes.html">Animes</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-3">
-                        <h5 class="footer-title text-uppercase">Fonte</h5>
-                        <ul class="list-unstyled list-wide footer-content">
-                            <li><a class="content-link" href="https://embedplayapi.top/" target="_blank" rel="noopener">EmbedPlayAPI</a></li>
-                            <li><a class="content-link" href="https://embedplayapi.top/api" target="_blank" rel="noopener">Documentacao</a></li>
-                        </ul>
-                    </div>
+                <div class="col-md-3">
+                    <h5 class="footer-title text-uppercase">Fonte</h5>
+                    <ul class="list-unstyled list-wide footer-content">
+                        <li><a class="content-link" href="https://embedplayapi.top/" target="_blank" rel="noopener">EmbedPlayAPI</a></li>
+                        <li><a class="content-link" href="https://embedplayapi.top/api" target="_blank" rel="noopener">Documentacao</a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="footer-copy">
-                <div class="container">BrasilFLIX &copy; 2026</div>
-            </div>
-        </footer>
+        </div>
+        <div class="footer-copy">
+            <div class="container">BrasilFLIX &copy; 2026</div>
+        </div>
+    </footer>
 
-        <script src="./js/jquery-3.3.1.js"></script>
-        <script src="./bootstrap/js/bootstrap.js"></script>
-        <script src="./parallax.js/parallax.js"></script>
-        <script src="./waypoints/jquery.waypoints.min.js"></script>
-        <script src="./slick/slick.min.js"></script>
-        <script src="./magnific-popup/jquery.magnific-popup.min.js"></script>
-        <script src="./js/script.js"></script>
-        <script src="./js/brasilflix.js"></script>
-        <script>
-    // Força execução após tudo carregar
-    document.addEventListener("DOMContentLoaded", function() {
-        console.log("🔄 Forçando execução do BrasilFLIX...");
-        if (typeof loadDetailsPage === "function" && document.body.getAttribute("data-bf-page") === "detalhes") {
-            loadDetailsPage();
-        }
-    });
-        </script>
-    </body>
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./bootstrap/js/bootstrap.js"></script>
+    <script src="./parallax.js/parallax.js"></script>
+    <script src="./waypoints/jquery.waypoints.min.js"></script>
+    <script src="./slick/slick.min.js"></script>
+    <script src="./magnific-popup/jquery.magnific-popup.min.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/brasilflix.js"></script>
+    <script src="./js/extras.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("🔄 Home carregada");
+        });
+    </script>
+</body>
 </html>

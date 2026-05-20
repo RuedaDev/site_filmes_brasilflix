@@ -1,48 +1,256 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title>Doramas - BrasilFLIX</title>
-        <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-        <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
-        <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
-        <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
-        <link href="./css/theme.css" rel="stylesheet" type="text/css" />
-        <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-    </head>
-    <body class="body brasilflix-body" data-bf-page="doramas">
-        <header class="header header-horizontal header-view-pannel brasilflix-header">
-            <div class="container">
-                <nav class="navbar">
-                    <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX"><span class="logo-element"><span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span><span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span></span></a>
-                    <button class="navbar-toggler" type="button" aria-label="Abrir menu"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
-                    <div class="navbar-collapse">
-                        <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
-                            <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
-                            <li class="nav-item active"><a class="nav-link" href="doramas.html">Doramas</a></li>
-                            <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
-                        </ul>
-                        <div class="navbar-extra"><a class="btn-theme btn" href="homepage-1.html#assistir"><i class="fas fa-play"></i>&nbsp;&nbsp;Player</a></div>
-                    </div>
-                </nav>
-            </div>
-        </header>
-        <main>
-            <section class="bf-page-hero section-text-white"><div class="container"><span class="bf-kicker text-uppercase">Asia</span><h1>Doramas</h1><p>Romance, suspense e acao em uma pagina dedicada para doramas.</p></div></section>
-            <section class="bf-catalog-section section-long section-text-white">
-                <div class="container">
-                    <div class="bf-section-head"><span class="bf-kicker text-uppercase">Catalogo</span><h2 class="section-title text-uppercase">Doramas por categoria</h2></div>
-                    <div class="bf-control-panel mb-4"><form id="bf-title-form" autocomplete="off"><label for="bf-title-input">Filtrar doramas</label><div class="bf-title-grid"><input id="bf-title-input" class="form-control" type="text" placeholder="Nome do dorama" /><input id="bf-year-input" class="form-control" type="number" placeholder="Ano" min="1900" max="2100" /><button class="btn btn-theme" type="submit"><i class="fas fa-search"></i></button></div></form><p id="bf-message" class="bf-message" role="status">Escolha uma categoria.</p></div>
-                    <div id="bf-category-filters" class="bf-filter-row" aria-label="Categorias"></div>
-                    <div id="bf-catalog" class="bf-catalog-grid" aria-live="polite"></div>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Doramas - BrasilFLIX</title>
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
+    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <style>
+        .dorama-filters {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .country-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .country-btn:hover, .country-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+        .section-title {
+            color: white;
+            text-align: center;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<link href="./css/extras.css" rel="stylesheet" type="text/css" />
+<script src="./js/extras.js"></script>
+<body class="body brasilflix-body" data-bf-page="doramas">
+    <header class="header header-horizontal header-view-pannel brasilflix-header">
+        <div class="container">
+            <nav class="navbar">
+                <a class="navbar-brand" href="./homepage-1.html">
+                    <span class="logo-element">
+                        <span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span>
+                        <span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span>
+                    </span>
+                </a>
+                <button class="navbar-toggler" type="button"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
+                <div class="navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="doramas.html">Doramas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
+                    </ul>
                 </div>
-            </section>
-        </main>
-        <script src="./js/jquery-3.3.1.js"></script><script src="./bootstrap/js/bootstrap.js"></script><script src="./waypoints/jquery.waypoints.min.js"></script><script src="./js/script.js"></script><script src="./js/brasilflix.js"></script>
-    </body>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="dorama-filters">
+            <div class="container">
+                <h2 class="text-white text-center">🎌 Doramas por País</h2>
+                <div class="text-center">
+                    <button class="country-btn active" data-country="all">🌏 Todos</button>
+                    <button class="country-btn" data-country="KR">🇰🇷 Coreia</button>
+                    <button class="country-btn" data-country="JP">🇯🇵 Japão</button>
+                    <button class="country-btn" data-country="CN">🇨🇳 China</button>
+                    <button class="country-btn" data-country="TW">🇹🇼 Taiwan</button>
+                    <button class="country-btn" data-country="TH">🇹🇭 Tailândia</button>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-8 mx-auto">
+                        <input type="text" id="bf-title-input" class="form-control" placeholder="🔍 Buscar doramas...">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-long">
+            <div class="container">
+                <h2 class="section-title">📺 Doramas Populares</h2>
+                <div id="bf-message" class="text-center text-white mb-3"></div>
+                <div id="bf-dorama-catalog" class="row"></div>
+                <div class="text-center mt-4">
+                    <button id="load-more-btn" class="btn btn-theme btn-lg" onclick="loadMoreDoramas()">
+                        Carregar Mais
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./bootstrap/js/bootstrap.js"></script>
+    
+    <script>
+        const IMAGE_BASE = "https://image.tmdb.org/t/p/w780";
+        const FALLBACK_POSTER = "https://via.placeholder.com/500x750?text=Sem+Poster";
+        
+        let currentPage = 1;
+        let currentCountry = 'all';
+        let isLoading = false;
+        let totalPages = 1;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎌 Doramas carregado');
+            loadDoramas();
+            
+            document.querySelectorAll('.country-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCountry = this.dataset.country;
+                    currentPage = 1;
+                    document.getElementById('bf-dorama-catalog').innerHTML = '';
+                    loadDoramas();
+                });
+            });
+            
+            let searchTimer;
+            document.getElementById('bf-title-input').addEventListener('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => {
+                    if (this.value.trim()) {
+                        searchDoramas();
+                    } else {
+                        currentPage = 1;
+                        document.getElementById('bf-dorama-catalog').innerHTML = '';
+                        loadDoramas();
+                    }
+                }, 500);
+            });
+        });
+
+        async function loadDoramas() {
+            if (isLoading || currentPage > totalPages) return;
+            
+            isLoading = true;
+            showMessage('🎌 Carregando doramas...');
+            
+            try {
+                let url = currentCountry === 'all' 
+                    ? `/api/doramas/popular?page=${currentPage}`
+                    : `/api/doramas/by-country/${currentCountry}?page=${currentPage}`;
+                
+                console.log('🔍 URL:', url);
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                console.log('📊 Dados:', data);
+                
+                if (data.results && data.results.length > 0) {
+                    renderDoramas(data.results, true);
+                    totalPages = data.total_pages || 1;
+                    currentPage++;
+                    
+                    if (currentPage > totalPages) {
+                        document.getElementById('load-more-btn').style.display = 'none';
+                    }
+                    showMessage(`${data.total_results} doramas disponíveis`);
+                } else {
+                    showMessage('Nenhum dorama encontrado.');
+                }
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                showMessage('Erro ao carregar. Tente novamente.');
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        async function searchDoramas() {
+            const query = document.getElementById('bf-title-input').value.trim();
+            if (!query) return;
+            
+            showMessage('🔍 Buscando...');
+            document.getElementById('bf-dorama-catalog').innerHTML = '';
+            
+            try {
+                const response = await fetch(`/api/doramas/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    renderDoramas(data.results);
+                    showMessage(`${data.results.length} dorama(s) encontrado(s)`);
+                } else {
+                    showMessage('Nenhum dorama encontrado.');
+                }
+            } catch (error) {
+                showMessage('Erro na busca.');
+            }
+        }
+
+        function loadMoreDoramas() {
+            loadDoramas();
+        }
+
+        function renderDoramas(items, append = false) {
+            const catalog = document.getElementById('bf-dorama-catalog');
+            if (!append) catalog.innerHTML = '';
+            
+            const flags = { KR: '🇰🇷', JP: '🇯🇵', CN: '🇨🇳', TW: '🇹🇼', TH: '🇹🇭' };
+            
+            const html = items.map(item => {
+                const title = item.name || 'Sem título';
+                const poster = item.poster_path ? IMAGE_BASE + item.poster_path : FALLBACK_POSTER;
+                const year = item.first_air_date ? item.first_air_date.split('-')[0] : '';
+                const rating = item.vote_average ? `★ ${item.vote_average.toFixed(1)}` : '';
+                const flag = item.origin_country ? flags[item.origin_country[0]] || '' : '';
+                
+                return `
+                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                        <div class="card bg-dark text-white h-100">
+                            <img src="${poster}" class="card-img-top" alt="${title}" 
+                                 style="height: 350px; object-fit: cover;" 
+                                 onerror="this.src='${FALLBACK_POSTER}'">
+                            <div class="card-body">
+                                <h6 class="card-title">${title}</h6>
+                                <small class="text-muted">${flag} ${year} | ${rating}</small>
+                                <a href="detalhes.html?id=${item.id}&media=tv" class="btn btn-theme btn-sm btn-block mt-2">
+                                    🎬 Assistir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            catalog.insertAdjacentHTML(append ? 'beforeend' : 'afterbegin', html);
+        }
+
+        function showMessage(text) {
+            document.getElementById('bf-message').textContent = text;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (isLoading || currentPage > totalPages) return;
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            if (scrollTop + clientHeight >= scrollHeight - 500) {
+                loadDoramas();
+            }
+        });
+    </script>
+</body>
 </html>

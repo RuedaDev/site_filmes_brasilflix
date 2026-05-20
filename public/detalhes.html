@@ -1,57 +1,94 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title>Detalhes - BrasilFLIX</title>
-        <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-        <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
-        <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
-        <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
-        <link href="./css/theme.css" rel="stylesheet" type="text/css" />
-        <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-    </head>
-    <body class="body brasilflix-body" data-bf-page="detalhes">
-        <header class="header header-horizontal header-view-pannel brasilflix-header">
-            <div class="container">
-                <nav class="navbar">
-                    <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
-                        <span class="logo-element"><span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span><span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span></span>
-                    </a>
-                    <button class="navbar-toggler" type="button" aria-label="Abrir menu"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
-                    <div class="navbar-collapse">
-                        <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
-                            <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
-                            <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
-                            <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
-                        </ul>
-                        <div class="navbar-extra"><a class="btn-theme btn" href="homepage-1.html#assistir"><i class="fas fa-play"></i>&nbsp;&nbsp;Player</a></div>
-                    </div>
-                </nav>
-            </div>
-        </header>
-        <main>
-            <div id="bf-detail"></div>
-            <div id="bf-related"></div>
-        </main>
-        <script src="./js/jquery-3.3.1.js"></script>
-        <script src="./bootstrap/js/bootstrap.js"></script>
-        <script src="./waypoints/jquery.waypoints.min.js"></script>
-        <script src="./js/brasilflix.js"></script>
-        
-        
-        <script>
-    // Força execução após tudo carregar
-    document.addEventListener("DOMContentLoaded", function() {
-        console.log("🔄 Forçando execução do BrasilFLIX...");
-        if (typeof loadDetailsPage === "function" && document.body.getAttribute("data-bf-page") === "detalhes") {
-            loadDetailsPage();
-        }
-    });
-</script>
-    </body>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Detalhes - BrasilFLIX</title>
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
+    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <!-- CSS extras -->
+    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="body brasilflix-body" data-bf-page="detalhes">
+    <header class="header header-horizontal header-view-pannel brasilflix-header">
+        <div class="container">
+            <nav class="navbar">
+                <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
+                    <span class="logo-element"><span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span><span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span></span>
+                </a>
+                <button class="navbar-toggler" type="button" aria-label="Abrir menu"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
+                <div class="navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
+                        <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
+                    </ul>
+                    <div class="navbar-extra"><a class="btn-theme btn" href="homepage-1.html#assistir"><i class="fas fa-play"></i>&nbsp;&nbsp;Player</a></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <div id="bf-detail"></div>
+        <div id="bf-related"></div>
+    </main>
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./bootstrap/js/bootstrap.js"></script>
+    <script src="./waypoints/jquery.waypoints.min.js"></script>
+    <script src="./js/brasilflix.js"></script>
+    <!-- Scripts extras -->
+    <script src="./js/extras.js"></script>
+    <!-- Script inline: botão trailer e histórico -->
+    <script>
+        // Adiciona botão de trailer estilizado
+        setTimeout(() => {
+            const btnContainer = document.querySelector('.bf-detail-copy');
+            if (btnContainer) {
+                const params = new URLSearchParams(window.location.search);
+                const media = params.get('media') || 'movie';
+                const id = params.get('id');
+
+                const trailerBtn = document.createElement('button');
+                trailerBtn.className = 'btn-trailer';
+                trailerBtn.textContent = 'Trailer';
+                trailerBtn.addEventListener('click', () => playTrailer(media, id));
+
+                const assistirBtn = btnContainer.querySelector('.btn-theme');
+                if (assistirBtn) {
+                    assistirBtn.parentNode.insertBefore(trailerBtn, assistirBtn.nextSibling);
+                } else {
+                    btnContainer.appendChild(trailerBtn);
+                }
+            }
+
+            // Registra visualização no histórico
+            const params = new URLSearchParams(window.location.search);
+            const title = document.querySelector('h1')?.textContent || 'Título';
+            if (params.get('id')) {
+                History.add({
+                    id: parseInt(params.get('id')),
+                    title: title,
+                    poster_path: '',
+                    media_type: params.get('media') || 'movie'
+                });
+            }
+        }, 800);
+
+        // Fallback para carregar detalhes (se necessário)
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("🔄 Forçando execução do BrasilFLIX...");
+            if (typeof loadDetailsPage === "function" && document.body.getAttribute("data-bf-page") === "detalhes") {
+                loadDetailsPage();
+            }
+        });
+    </script>
+</body>
 </html>

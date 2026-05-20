@@ -533,4 +533,127 @@
     .bf-detail-copy h1 {
         font-size: 38px;
     }
+    /* Estilos para controles de temporada/episódio */
+.bf-season-controls {
+    background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(30,30,30,0.9)) !important;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.bf-season-controls label {
+    color: #fff !important;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.bf-season-controls select {
+    background: #1a1a1a !important;
+    color: white !important;
+    border: 1px solid #444 !important;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.bf-season-controls select:hover {
+    border-color: #666 !important;
+    background: #222 !important;
+}
+
+.bf-season-controls select:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 10px rgba(0,123,255,0.3);
+    outline: none;
+}
+
+.bf-last-episode {
+    border-left: 3px solid #007bff;
+    padding-left: 10px;
+    font-size: 0.9rem;
+}
+
+.bf-filter-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.bf-filter {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.bf-filter:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.bf-filter.active {
+    background: #007bff;
+    border-color: #007bff;
+    font-weight: bold;
+}
+/* Estilos para os controles de temporada/episódio */
+.bf-season-controls select:hover {
+    border-color: #007bff !important;
+    background: #222 !important;
+}
+
+.bf-season-controls select:focus {
+    outline: none;
+    border-color: #007bff !important;
+    box-shadow: 0 0 10px rgba(0,123,255,0.3);
+}
+
+#player-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+#player-buttons .bf-filter {
+    padding: 8px 18px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+#player-buttons .bf-filter:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+#player-buttons .bf-filter.active {
+    background: #007bff;
+    border-color: #007bff;
+    box-shadow: 0 4px 15px rgba(0,123,255,0.4);
+}
+
+.bf-player-shell {
+    position: relative;
+    width: 100%;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.bf-player-shell iframe {
+    display: block;
+    border: none;
+}
+
 }
