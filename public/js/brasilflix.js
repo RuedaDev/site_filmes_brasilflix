@@ -72,53 +72,62 @@
     // ==========================================
 
     function embedsFor(media, id, details = null) {
-    media = media === "tv" ? "tv" : "movie";
+    const isMovie = media !== "tv";
+    const isUserPremium = (() => {
+        try {
+            const user = JSON.parse(localStorage.getItem('bf_user') || '{}');
+            return user.is_premium === 1;
+        } catch (e) { return false; }
+    })();
 
-    // Obtém o IMDb ID, se disponível
-    const imdbId = details?.external_ids?.imdb_id || null;
+    // Lista completa de players (usada para não premium)
+    const allMoviePlayers = [
+        `https://vidsrc.xyz/embed/movie/${id}`,
+        `https://www.2embed.cc/embed/${id}`,
+        `https://multiembed.mov/?video_id=${id}&tmdb=1`,
+        `https://player.autoembed.cc/embed/movie/${id}`,
+       // `https://embed.su/embed/movie/${id}`,
+        `https://vidsrc.to/embed/movie/${id}`,
+        `https://embedplayapi.top/embed/${id}`,
+        `https://betterflix.click/api/player?id=${id}&type=movie`,
+        `https://superflixapi.best/filme/${id}#noLink#color:ff0000`,
+        `https://vidsrc.me/embed/movie?tmdb=${id}`,
+        `https://myembed.biz/filme/${id}`
 
-    if (media === "movie") {
-        const urls = [
-            `https://vidsrc.me/embed/movie?tmdb=${id}`,
-            `https://vidlink.pro/movie/${id}`,
-           // `https://embed.su/embed/movie/${id}`,
-           // `https://vidsrc.icu/embed/movie/${id}`,
-            `https://autoembed.co/movie/tmdb/${id}`,
-            `https://vidsrc.xyz/embed/movie/${id}`,
-            `https://www.2embed.cc/embed/${id}`,
-            `https://betterflix.click/api/player?id=${id}&type=movie`,
-            `https://embedplayapi.top/embed/${id}`,
-            `https://myembed.biz/filme/${id}`,
-            `https://superflixapi.best/filme/${id}#noLink#color:ff0000`,
-        ];
-
-        // Adiciona SuperFlixAPI com IMDb ID (preferencial) ou TMDB ID
-        const superflixUrl = imdbId 
-            ? `https://superflixapi.best/filme/${imdbId}#noLink#color:ff0000`
-            : `https://superflixapi.best/filme/${id}#noLink#color:ff0000`;
-        urls.unshift(superflixUrl); // coloca como primeira opção
-
-        return urls;
-    }
-
-    // Para séries/doramas/animes
-    const urls = [
-        `https://vidsrc.me/embed/tv?tmdb=${id}&season=1&episode=1`,
-        `https://vidlink.pro/tv/${id}/1/1`,
-       // `https://embed.su/embed/tv/${id}/1/1`,
-       // `https://vidsrc.icu/embed/tv/${id}/1/1`,
-        `https://autoembed.co/tv/tmdb/${id}/1/1`,
-       // `https://vidsrc.xyz/embed/tv/${id}/1/1`,
-        `https://myembed.biz/serie/${id}/1/1`,
-        `https://embedplayapi.top/embed/${id}/1/1`,
-        `https://betterflix.click/api/player?id=${id}&type=tv&season=1&episode=1`,
-        `https://superflixapi.best/serie/${id}/1/1#noEpList#noLink`,
     ];
 
-    const superflixUrl = `https://superflixapi.best/serie/${id}/1/1#noEpList#noLink`;
-    urls.unshift(superflixUrl);
+    const allTvPlayers = [
+        `https://vidsrc.to/embed/tv/${id}/1/1`,
+        `https://vidsrc.xyz/embed/tv/${id}/1/1`,
+        `https://www.2embed.cc/embedtv/${id}`,
+        `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
+        `https://player.autoembed.cc/embed/tv/${id}/1/1`,
+       // `https://embed.su/embed/tv/${id}/1/1`,
+        `https://myembed.biz/serie/${id}/1/1`,
+        `https://embedplayapi.top/embed/${id}/1/1`,
+        `https://betterflix.click/api/player?id=${id}&type=tv&season=1&episode=1`
+    ];
 
-    return urls;
+    // Lista reduzida para premium (3 melhores, sem anúncios popup)
+    const premiumMoviePlayers = [
+        `https://superflixapi.best/filme/${id}#noLink#color:ff0000`,
+        `https://vidsrc.me/embed/movie?tmdb=${id}`,
+        `https://embed.su/embed/movie/${id}`,
+        `https://betterflix.click/api/player?id=${id}&type=movie`
+    ];
+
+    const premiumTvPlayers = [
+        `https://superflixapi.best/serie/${id}/1/1#noEpList#noLink`,
+        `https://vidsrc.me/embed/tv?tmdb=${id}&season=1&episode=1`,
+        `https://embed.su/embed/tv/${id}/1/1`,
+        `https://betterflix.click/api/player?id=${id}&type=tv&season=1&episode=1`,
+    ];
+
+    if (isUserPremium) {
+        return isMovie ? premiumMoviePlayers : premiumTvPlayers;
+    } else {
+        return isMovie ? allMoviePlayers : allTvPlayers;
+    }
 }
 
     // ==========================================
@@ -254,14 +263,14 @@
     const movies = await collectPages("/api/popular?type=movie", INITIAL_HOME_PAGES);
     const series = await collectPages("/api/trending?type=tv", INITIAL_HOME_PAGES);
 
-    renderCards(homeMoviesNode, movies.slice(0, 8), "movie");
-    renderCards(homeSeriesNode, series.slice(0, 8), "tv");
+    renderCards(homeMoviesNode, movies.slice(0, 10), "movie");
+    renderCards(homeSeriesNode, series.slice(0, 10), "tv");
 
     // Animes
     try {
         const animesData = await apiGet("/api/animes/popular?page=1");
         const animes = animesData.results || [];
-        renderCards(homeAnimesNode, animes.slice(0, 8), "tv");
+        renderCards(homeAnimesNode, animes.slice(0, 10), "tv");
     } catch (e) {
         homeAnimesNode.innerHTML = "<p>Animes indisponíveis.</p>";
     }
@@ -270,7 +279,7 @@
     try {
         const doramasData = await apiGet("/api/doramas/popular?page=1");
         const doramas = doramasData.results || [];
-        renderCards(homeDoramasNode, doramas.slice(0, 8), "tv");
+        renderCards(homeDoramasNode, doramas.slice(0, 10), "tv");
     } catch (e) {
         homeDoramasNode.innerHTML = "<p>Doramas indisponíveis.</p>";
     }
@@ -572,7 +581,7 @@ function renderPlayer(media, id, seasons, totalSeasons) {
                         src="${firstPlayerUrl}" 
                         width="100%"
                         frameborder="0" allowfullscreen
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
+                        ">
                     </iframe>
                 </div>
             </div>

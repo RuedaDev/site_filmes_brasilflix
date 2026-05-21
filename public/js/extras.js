@@ -9,6 +9,10 @@
     const getToken = () => localStorage.getItem('bf_token');
     const getUser = () => JSON.parse(localStorage.getItem('bf_user') || 'null');
     const isLoggedIn = () => !!getToken();
+    const isPremium = () => {
+        const user = getUser();
+        return user && user.is_premium === 1;
+    };
 
     // ---------- SISTEMA DE FAVORITOS (com sincronização) ----------
     const Favorites = {
@@ -27,7 +31,6 @@
                 });
                 localStorage.setItem('bf_favorites', JSON.stringify(favs));
                 showToast('❤️ Adicionado aos favoritos!');
-                // Sincroniza com servidor se logado
                 this.addToServer(item);
             }
         },
@@ -190,7 +193,6 @@
     function logout() {
         localStorage.removeItem('bf_token');
         localStorage.removeItem('bf_user');
-        // Opcional: limpar favoritos locais ou manter
         window.location.href = 'homepage-1.html';
     }
 
@@ -354,7 +356,7 @@
     function addFavButtonToCard(card) {
         if (!card || card.dataset.favReady === '1') return;
 
-        const id = parseInt(card.dataset.bfId || card.getAttribute('data-bf-id'), 10);
+        let id = parseInt(card.dataset.bfId || card.getAttribute('data-bf-id'), 10);
         let media = card.dataset.bfMedia || card.getAttribute('data-bf-media');
         let title = card.dataset.bfTitle || card.querySelector('.bf-card-body h3')?.textContent?.trim();
 
@@ -363,19 +365,17 @@
             if (!link) return;
             try {
                 const url = new URL(link.getAttribute('href'), window.location.href);
-                const parsedId = parseInt(url.searchParams.get('id'), 10);
-                if (!parsedId) return;
+                id = parseInt(url.searchParams.get('id'), 10);
+                if (!id) return;
                 media = url.searchParams.get('media') || 'movie';
                 title = title || 'Título';
-                card.dataset.bfId = String(parsedId);
+                card.dataset.bfId = String(id);
                 card.dataset.bfMedia = media;
-            } catch (e) {
-                return;
-            }
+            } catch (e) { return; }
         }
 
-        const tmdbId = parseInt(card.dataset.bfId, 10);
-        media = card.dataset.bfMedia || 'movie';
+        const tmdbId = id;
+        media = media || 'movie';
         title = title || 'Título';
         const posterEl = card.querySelector('.bf-card-poster');
         if (!posterEl || posterEl.querySelector('.bf-card-fav-btn')) return;
@@ -445,9 +445,40 @@
         targets.forEach(el => observer.observe(el, { childList: true, subtree: true }));
     }
 
+    // ---------- REMOVER ANÚNCIOS SE PREMIUM ----------
+    function removeAdsForPremium() {
+        if (!isPremium()) return;
+        document.querySelectorAll('script[src*="seenimplieddump.com"], script[src*="effectivecpmnetwork.com"]')
+            .forEach(el => el.remove());
+        const adContainer = document.getElementById('container-ca14ad0de7291d1f27386bee56f15bac');
+        if (adContainer) adContainer.remove();
+        console.log('🛡️ Anúncios removidos para usuário premium');
+    }
+
+    // ---------- ATUALIZAR STATUS PREMIUM PELO TOKEN ----------
+    function updatePremiumStatus() {
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const user = JSON.parse(localStorage.getItem('bf_user') || '{}');
+
+            if (payload.is_premium !== undefined && user.is_premium !== payload.is_premium) {
+                user.is_premium = payload.is_premium;
+                localStorage.setItem('bf_user', JSON.stringify(user));
+                console.log('🔄 Status premium atualizado via JWT:', user.is_premium);
+            }
+        } catch (e) {
+            console.warn('Não foi possível atualizar status premium do token');
+        }
+    }
+
     // ---------- INICIALIZAÇÃO ----------
     async function init() {
         Theme.init();
+        updatePremiumStatus();     // Sincroniza is_premium do token JWT
+        removeAdsForPremium();     // Remove anúncios se premium
         updateHeader();
         createFloatingButtons();
         createShareMenu();
@@ -459,7 +490,6 @@
             await Favorites.syncWithServer();
         }
 
-        // Verifica mensagem de cadastro via URL
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('registered') === 'true') {
             showToast('✅ Cadastro efetuado com sucesso! Bem-vindo!');
@@ -469,8 +499,11 @@
         console.log("✅ Extras inicializados");
     }
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-    else init();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     window.Favorites = Favorites;
     window.History = History;

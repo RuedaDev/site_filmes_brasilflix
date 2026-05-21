@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Painel Admin - BrasilFLIX</title>
+    <style>
+        body { background: #1a1a2e; color: white; font-family: Arial, sans-serif; margin: 0; }
+        .admin-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .stat-card { background: #667eea; border-radius: 15px; padding: 20px; margin: 10px 0; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; }
+        #auth-section { text-align: center; padding: 100px 20px; }
+        input, button { padding: 12px; border-radius: 5px; border: none; margin: 5px; }
+        button { background: #e91e63; color: white; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #444; }
+        th { background: rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+    <div id="auth-section">
+        <h1>🔐 Painel Admin</h1>
+        <p>Digite a chave de acesso</p>
+        <input type="password" id="admin-key" placeholder="Chave de admin">
+        <button onclick="authenticate()">Acessar</button>
+        <p id="auth-error" style="color: red;"></p>
+    </div>
+
+    <div id="dashboard-section" class="admin-container" style="display:none;">
+        <h1>📊 Painel Administrativo</h1>
+        <div id="metrics-cards" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+        <button onclick="exportEmails()" style="margin: 20px 0;">📧 Exportar Emails (CSV)</button>
+        <h3>👥 Usuários</h3>
+        <table>
+            <thead>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>  <!-- NOVA COLUNA -->
+                <th>Premium</th>
+                <th>Favoritos</th>
+                <th>Histórico</th>
+                <th>Cadastro</th>
+                <th>Ações</th>
+            </thead>
+            <tbody id="users-table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let adminKey = '';
+
+        async function authenticate() {
+            adminKey = document.getElementById('admin-key').value.trim();
+            if (!adminKey) {
+                document.getElementById('auth-error').textContent = 'Digite a chave.';
+                return;
+            }
+            document.getElementById('auth-error').textContent = '';
+            await loadDashboard();
+        }
+
+        async function apiAdmin(endpoint) {
+            const resp = await fetch(`/api/admin/${endpoint}?key=${encodeURIComponent(adminKey)}`);
+            if (!resp.ok) {
+                if (resp.status === 403) throw new Error('Chave inválida');
+                throw new Error('Erro ' + resp.status);
+            }
+            return resp.json();
+        }
+
+        async function loadDashboard() {
+            try {
+                const metrics = await apiAdmin('dashboard');
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+
+                const cards = [
+                    { label: 'Total de Usuários', value: metrics.totalUsers, color: '#667eea' },
+                    { label: 'Premium 💎', value: metrics.premiumUsers, color: '#43e97b' },
+                    { label: 'Cadastros Hoje', value: metrics.todayUsers, color: '#f093fb' },
+                    { label: 'Favoritos ❤️', value: metrics.totalFavorites, color: '#4facfe' },
+                    { label: 'Histórico 🕐', value: metrics.totalHistory, color: '#ff9800' }
+                ];
+
+                document.getElementById('metrics-cards').innerHTML = cards.map(c => `
+                    <div class="stat-card" style="background: ${c.color}; flex: 1 1 200px;">
+                        <div class="stat-number">${c.value}</div>
+                        <div>${c.label}</div>
+                    </div>
+                `).join('');
+
+                const users = await apiAdmin('users');
+                let html = '';
+                users.forEach(u => {
+                    html += `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td>${u.name}</td>
+                            <td>${u.email}</td>
+                            <td>${u.phone || '—'}</td>  <!-- NOVA CÉLULA -->
+                            <td>${u.is_premium ? '💎 Premium' : 'Grátis'}</td>
+                            <td>${u.favorites_count}</td>
+                            <td>${u.history_count}</td>
+                            <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button onclick="togglePremium(${u.id}, ${u.is_premium})">
+                                    ${u.is_premium ? 'Remover Premium' : 'Dar Premium'}
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('users-table-body').innerHTML = html || '<tr><td colspan="6">Nenhum usuário.</td></tr>';
+
+            } catch (err) {
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('dashboard-section').style.display = 'none';
+                document.getElementById('auth-error').textContent = err.message;
+            }
+        }
+
+        async function togglePremium(userId, currentStatus) {
+            if (!confirm(`Confirmar ${currentStatus ? 'remoção' : 'ativação'} de premium?`)) return;
+            try {
+                const resp = await fetch(`/api/admin/toggle-premium/${userId}?key=${encodeURIComponent(adminKey)}`, { method: 'POST' });
+                const data = await resp.json();
+                alert(data.message || 'Sucesso!');
+                loadDashboard();
+            } catch (err) {
+                alert('Erro ao alterar premium.');
+            }
+        }
+
+        function exportEmails() {
+            window.open(`/api/admin/export-emails?key=${encodeURIComponent(adminKey)}`, '_blank');
+        }
+    </script>
+</body>
+</html>

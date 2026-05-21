@@ -2,35 +2,47 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, follow" />
-    <meta name="theme-color" content="#090c10" />
-    <title>Criar Conta | BrasilFLIX</title>
-    <meta name="description" content="Cadastre-se no BrasilFLIX e salve favoritos, histórico e personalize sua experiência." />
-    
-    <link rel="canonical" href="/cadastro.html" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="BrasilFLIX" />
-    <meta property="og:locale" content="pt_BR" />
-    <meta property="og:title" content="Criar Conta | BrasilFLIX" />
-    <meta property="og:description" content="Cadastre-se no BrasilFLIX e salve favoritos, histórico e personalize sua experiência." />
-    
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Criar Conta | BrasilFLIX" />
-    <meta name="twitter:description" content="Cadastre-se no BrasilFLIX e salve favoritos, histórico e personalize sua experiência." />
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
-    <link href="./css/dot-icons.css" rel="stylesheet" />
-    <link href="./css/theme.css" rel="stylesheet" />
-    <link href="./css/brasilflix.css" rel="stylesheet" />
-    <link href="./css/extras.css" rel="stylesheet" />
-    <link href="./css/responsive.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Criar Conta - BrasilFLIX</title>
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <style>
+        body.register-page {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .register-card {
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .register-card h2 { color: white; text-align: center; margin-bottom: 30px; }
+        .register-card .form-control {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+        }
+        .register-card .btn-register {
+            background: #e91e63;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .register-card .btn-register:hover { background: #ff4081; transform: translateY(-2px); }
+        .links a { color: #aaa; }
+    </style>
 </head>
 <body class="register-page">
-    <a class="bf-skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
     <div class="register-card">
         <h2>🔐 Criar Conta</h2>
         <form id="register-form">
@@ -40,6 +52,9 @@
             <div class="form-group">
                 <input type="email" id="reg-email" class="form-control" placeholder="Email" required />
             </div>
+            <div class="form-group">
+             <input type="text" id="reg-phone" class="form-control" placeholder="Telefone com DDD (obrigatório)" required />
+        </div>
             <div class="form-group">
                 <input type="password" id="reg-password" class="form-control" placeholder="Senha (mín. 6 caracteres)" required />
             </div>
@@ -54,43 +69,51 @@
 
     <script>
         document.getElementById('register-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-            const msgEl = document.getElementById('register-message');
+    e.preventDefault();
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const msgEl = document.getElementById('register-message');
 
-            if (password.length < 6) {
-                msgEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
-                return;
-            }
+    // Verificação básica
+    if (!phone) {
+        msgEl.textContent = 'O telefone é obrigatório.';
+        return;
+    }
 
-            try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
-                });
+    if (password.length < 6) {
+        msgEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        return;
+    }
 
-                const data = await response.json();
+    // Validação do telefone (DDD + número)
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+        msgEl.textContent = 'Telefone inválido. Use DDD + número (ex: 11988887777)';
+        return;
+    }
 
-                if (response.ok) {
-                    localStorage.setItem('bf_token', data.token);
-                    localStorage.setItem('bf_user', JSON.stringify(data.user));
-                    window.location.href = 'homepage-1.html';
-                } else {
-                    msgEl.textContent = data.error || 'Erro ao criar conta.';
-                }
-            } catch (error) {
-                msgEl.textContent = 'Erro de conexão. Tente novamente.';
-            }
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password, phone: cleanPhone })
         });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('bf_token', data.token);
+            localStorage.setItem('bf_user', JSON.stringify(data.user));
+            window.location.href = 'homepage-1.html?registered=true';
+        } else {
+            msgEl.textContent = data.error || 'Erro ao criar conta.';
+        }
+    } catch (error) {
+        msgEl.textContent = 'Erro de conexão. Tente novamente.';
+    }
+});
     </script>
-    <script async src="https://seenimplieddump.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script>
-
-    <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
-<div id="container-ca14ad0de7291d1f27386bee56f15bac"></div>
-    <script async src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
-
 </body>
 </html>
