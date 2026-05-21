@@ -401,7 +401,8 @@ function renderPlayer(media, id, seasons, totalSeasons) {
                         <iframe id="bf-detail-player" 
                             src="${embedUrls[0]}" 
                             width="100%" height="450px" 
-                            frameborder="0" allowfullscreen>
+                            frameborder="0" allowfullscreen
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups>
                         </iframe>
                     </div>
                 </div>
@@ -497,7 +498,8 @@ function renderPlayer(media, id, seasons, totalSeasons) {
                     <iframe id="bf-detail-player" 
                         src="${firstPlayerUrl}" 
                         width="100%" height="450px" 
-                        frameborder="0" allowfullscreen>
+                        frameborder="0" allowfullscreen
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
                     </iframe>
                 </div>
             </div>
