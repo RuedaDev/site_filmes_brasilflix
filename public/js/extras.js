@@ -352,43 +352,22 @@
 
     // ---------- OBSERVAR CARDS PARA BOTÃO FAVORITO ----------
     function observeCards() {
-        const addBtn = (card) => {
-            if (card.querySelector('.fav-btn')) return;
-            const link = card.querySelector('a[href*="detalhes.html"]');
-            if (!link) return;
-            const url = new URL(link.href, window.location.origin);
-            const id = url.searchParams.get('id');
-            const media = url.searchParams.get('media') || 'movie';
-            const btn = document.createElement('button');
-            btn.className = 'fav-btn';
-            btn.innerHTML = Favorites.isFavorited(parseInt(id)) ? '❤️' : '🤍';
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                const title = card.querySelector('h3')?.textContent || 'Título';
-                if (Favorites.isFavorited(parseInt(id))) {
-                    Favorites.remove(parseInt(id));
-                    btn.innerHTML = '🤍';
-                } else {
-                    Favorites.add({ id: parseInt(id), title, poster_path: '', media_type: media });
-                    btn.innerHTML = '❤️';
+    // Em vez de observar todo o DOM, apenas adiciona os botões quando novos cards são inseridos via funções já existentes.
+    // Mas para não quebrar, vamos usar um observer limitado à #catalogo ou similar.
+    const target = document.getElementById('catalogo') || document.body;
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach(m => {
+            m.addedNodes.forEach(node => {
+                if (node.nodeType === 1) {
+                    if (node.matches && node.matches('.bf-card')) addFavButtonToCard(node);
+                    if (node.querySelectorAll) node.querySelectorAll('.bf-card').forEach(addFavButtonToCard);
                 }
             });
-            card.style.position = 'relative';
-            card.appendChild(btn);
-        };
-        new MutationObserver(mutations => {
-            mutations.forEach(m => {
-                m.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) {
-                        if (node.matches && node.matches('.bf-card')) addBtn(node);
-                        if (node.querySelectorAll) node.querySelectorAll('.bf-card').forEach(addBtn);
-                    }
-                });
-            });
-        }).observe(document.body, { childList: true, subtree: true });
-        document.querySelectorAll('.bf-card').forEach(addBtn);
-    }
+        });
+    });
+    observer.observe(target, { childList: true, subtree: true });
+    document.querySelectorAll('.bf-card').forEach(addFavButtonToCard);
+}
 
     // ---------- INICIALIZAÇÃO ----------
     async function init() {

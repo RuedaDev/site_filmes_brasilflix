@@ -11,14 +11,16 @@
     <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
     <link href="./css/theme.css" rel="stylesheet" type="text/css" />
     <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-    <script src="https://pl29507705.effectivecpmnetwork.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script>
+    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
+    <script src="https://seenimplieddump.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script>
+
     <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
 <div id="container-ca14ad0de7291d1f27386bee56f15bac"></div>
     <script src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
 
     <style>
         .anime-hero {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 50%, #f0932b 100%);
+        
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 30px;
@@ -117,8 +119,8 @@
         .season-fall { background: #d4a574; color: #2c3e50; }
     </style>
 </head>
-<link href="./css/extras.css" rel="stylesheet" type="text/css" />
 <script src="./js/extras.js"></script>
+
 <body class="body brasilflix-body" data-bf-page="animes">
     <header class="header header-horizontal header-view-pannel brasilflix-header">
         <div class="container">
@@ -138,6 +140,7 @@
                         <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
                         <li class="nav-item"><a class="nav-link active" href="animes.html">Animes</a></li>
                         <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
+                        <li class="nav-item"><a class="nav-link" href="desenhos.html">Desenhos</a></li>
                     </ul>
                 </div>
             </nav>
@@ -146,10 +149,15 @@
 
     <main>
         <!-- Hero Section -->
-        <section class="anime-hero">
-            <div class="container">
+        <section class="anime-hero" style="background-image: url('https://image.tmdb.org/t/p/original/j0gsESaBzFmYVhnBTXzIE9PsgY8.jpg');
+         background-size: cover; background-position: center; position: relative; min-height: 600px; display: flex; align-items: center; overflow: hidden;">
+         <!-- Overlay escuro -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); z-index: 1;"></div>
+         <!-- Conteúdo textual -->
+            <div class="container" style="position: relative; z-index: 2;">
                 <h2 class="text-center mb-3">🎌 Animes</h2>
-                <p class="text-center mb-4">Explore o mundo dos animes japoneses</p>
+                <p class="text-center mb-4">A melhor experiência otaku em um só lugar</p>
                 
                 <!-- Filtros de Gênero -->
                 <div class="text-center mb-4">
@@ -215,7 +223,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p class="text-center text-muted">© 2024 BrasilFLIX - Todos os direitos reservados</p>
+            <p class="text-center text-muted">© 2026 BrasilFLIX - Todos os direitos reservados</p>
         </div>
     </footer>
 
@@ -299,65 +307,76 @@
             });
         }
 
-        async function loadAnimes() {
-            if (isLoading || currentPage > totalPages || searchMode) return;
-            
-            isLoading = true;
-            showLoading(true);
+        
             showMessage('🎌 Carregando animes...');
             
-            try {
-                let url;
-                
-                if (currentSeason) {
-                    // Animes por temporada
-                    const year = new Date().getFullYear();
-                    url = `/api/animes/seasonal?page=${currentPage}&year=${year}&season=${currentSeason}`;
-                } else if (currentGenre === 'all') {
-                    // Animes populares
-                    url = `/api/animes/popular?page=${currentPage}`;
-                } else {
-                    // Animes por gênero
-                    url = `/api/animes/by-genre/${currentGenre}?page=${currentPage}`;
-                }
-                
-                console.log('🔍 URL:', url);
-                
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                console.log('📊 Dados recebidos:', {
-                    totalResults: data.total_results,
-                    currentPage: data.page,
-                    totalPages: data.total_pages,
-                    resultsCount: data.results?.length
-                });
-                
-                if (data.results && data.results.length > 0) {
-                    renderAnimes(data.results, true);
-                    totalPages = Math.min(data.total_pages || 1, 100);
-                    currentPage++;
-                    
-                    // Atualiza UI
-                    if (currentPage > totalPages) {
-                        document.getElementById('load-more-btn').style.display = 'none';
-                        showMessage('✅ Todos os animes carregados!');
-                    } else {
-                        document.getElementById('load-more-btn').style.display = 'inline-block';
-                        showMessage(`${data.total_results} animes disponíveis`);
-                    }
-                } else {
-                    showMessage('😔 Nenhum anime encontrado.');
-                    document.getElementById('load-more-btn').style.display = 'none';
-                }
-            } catch (error) {
-                console.error('❌ Erro:', error);
-                showMessage('❌ Erro ao carregar animes. Tente novamente.');
-            } finally {
-                isLoading = false;
-                showLoading(false);
-            }
+        async function loadAnimes() {
+    if (isLoading || currentPage > totalPages || searchMode) return;
+
+    isLoading = true;
+    showLoading(true);
+    showMessage('🎌 Carregando animes...');
+
+    try {
+        let url;
+
+        if (currentSeason) {
+            // Animes por temporada (mantém rota específica se existir)
+            const year = new Date().getFullYear();
+            url = `/api/animes/seasonal?page=${currentPage}&year=${year}&season=${currentSeason}`;
+        } else if (currentGenre === 'all') {
+            // Todos os animes populares (rota existente)
+            url = `/api/animes/popular?page=${currentPage}`;
+        } else {
+            // Usa a rota discover genérica (compatível com qualquer servidor)
+            const params = new URLSearchParams({
+                type: 'tv',
+                page: currentPage,
+                sort_by: 'popularity.desc',
+                genre: `16,${currentGenre}`,   // 16 = animação + gênero escolhido
+                language: 'ja',                 // idioma original japonês
+                'vote_count.gte': 5
+            });
+            url = `/api/discover?${params.toString()}`;
         }
+
+        console.log('🔍 URL:', url);
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        console.log('📊 Dados recebidos:', {
+            totalResults: data.total_results,
+            currentPage: data.page,
+            totalPages: data.total_pages,
+            resultsCount: data.results?.length
+        });
+
+        if (data.results && data.results.length > 0) {
+            renderAnimes(data.results, true);
+            totalPages = Math.min(data.total_pages || 1, 100);
+            currentPage++;
+
+            if (currentPage > totalPages) {
+                document.getElementById('load-more-btn').style.display = 'none';
+                showMessage('✅ Todos os animes carregados!');
+            } else {
+                document.getElementById('load-more-btn').style.display = 'inline-block';
+                showMessage(`${data.total_results} animes disponíveis`);
+            }
+        } else {
+            showMessage('😔 Nenhum anime encontrado.');
+            document.getElementById('load-more-btn').style.display = 'none';
+        }
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        showMessage('❌ Erro ao carregar animes. Tente novamente.');
+    } finally {
+        isLoading = false;
+        showLoading(false);
+    }
+}    
+          
 
         async function searchAnimes() {
             const query = document.getElementById('bf-title-input').value.trim();
@@ -473,5 +492,7 @@
             }
         });
     </script>
+    <script src="./js/extras.js"></script>
+    
 </body>
 </html>

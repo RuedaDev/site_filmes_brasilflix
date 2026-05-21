@@ -1,53 +1,292 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title>Categorias - BrasilFLIX</title>
-        <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-        <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
-        <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
-        <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
-        <link href="./css/theme.css" rel="stylesheet" type="text/css" />
-        <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-        <script src="https://pl29507705.effectivecpmnetwork.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Categorias - BrasilFLIX</title>
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
+    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
+    
+    <style>
+        .category-tabs .nav-link {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 20px;
+            margin: 0 5px;
+            padding: 10px 20px;
+            border: none;
+            transition: all 0.3s;
+        }
+        .category-tabs .nav-link.active {
+            background: #e91e63;
+            color: white;
+        }
+        .genre-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        .genre-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .movie-card {
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .movie-card:hover { transform: scale(1.02); }
+        .movie-card img {
+            width: 100%;
+            height: 225px;
+            object-fit: cover;
+        }
+        .movie-card .info {
+            padding: 10px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        #results-container {
+            margin-top: 30px;
+        }
+    </style>
+    <script src="https://seenimplieddump.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script> 
         <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
         <div id="container-ca14ad0de7291d1f27386bee56f15bac"></div>
         <script src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
+</head>
+<body class="body brasilflix-body" data-bf-page="categorias">
 
-    </head>
-    <body class="body brasilflix-body" data-bf-page="categorias">
-        <header class="header header-horizontal header-view-pannel brasilflix-header">
-            <div class="container">
-                <nav class="navbar">
-                    <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX"><span class="logo-element"><span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span><span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span></span></a>
-                    <button class="navbar-toggler" type="button" aria-label="Abrir menu"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
-                    <div class="navbar-collapse">
-                        <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
-                            <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
-                            <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
-                            <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
-                            <li class="nav-item active"><a class="nav-link" href="categorias.html">Categorias</a></li>
-                        </ul>
-                        <div class="navbar-extra"><a class="btn-theme btn" href="homepage-1.html#assistir"><i class="fas fa-play"></i>&nbsp;&nbsp;Player</a></div>
-                    </div>
-                </nav>
-            </div>
-        </header>
-        <main>
-            <section class="bf-page-hero section-text-white"><div class="container"><span class="bf-kicker text-uppercase">Organizacao</span><h1>Categorias</h1><p>Todos os titulos separados por lancamentos, terror, comedia, drama, romance, suspense, acao e aventura.</p></div></section>
-            <section class="bf-catalog-section section-long section-text-white">
-                <div class="container">
-                    <div class="bf-section-head"><span class="bf-kicker text-uppercase">Tudo</span><h2 class="section-title text-uppercase">Catalogo por categoria</h2></div>
-                    <div class="bf-control-panel mb-4"><form id="bf-title-form" autocomplete="off"><label for="bf-title-input">Filtrar catalogo</label><div class="bf-title-grid"><input id="bf-title-input" class="form-control" type="text" placeholder="Nome do titulo" /><input id="bf-year-input" class="form-control" type="number" placeholder="Ano" min="1900" max="2100" /><button class="btn btn-theme" type="submit"><i class="fas fa-search"></i></button></div></form><p id="bf-message" class="bf-message" role="status">Escolha uma categoria.</p></div>
-                    <div id="bf-category-filters" class="bf-filter-row" aria-label="Categorias"></div>
-                    <div id="bf-catalog" class="bf-catalog-grid" aria-live="polite"></div>
+    <header class="header header-horizontal header-view-pannel brasilflix-header">
+        <div class="container">
+            <nav class="navbar">
+                <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
+                    <span class="logo-element">
+                        <span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span>
+                        <span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span>
+                    </span>
+                </a>
+                <button class="navbar-toggler" type="button" aria-label="Abrir menu"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
+                <div class="navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
+                        <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="categorias.html">Categorias</a></li>
+                        <li class="nav-item"><a class="nav-link" href="desenhos.html">Desenhos</a></li>
+                    </ul>
+                    <div class="navbar-extra"><a class="btn-theme btn" href="login.html"><i class="fas fa-user"></i>&nbsp;&nbsp;Login</a></div>
                 </div>
-            </section>
-        </main>
-        <script src="./js/jquery-3.3.1.js"></script><script src="./bootstrap/js/bootstrap.js"></script><script src="./waypoints/jquery.waypoints.min.js"></script><script src="./js/script.js"></script><script src="./js/brasilflix.js"></script>
-    </body>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4">
+        <h2 class="text-white text-center mb-4">🎬 Filtrar por Categoria</h2>
+
+        <!-- Tabs de tipo de conteúdo -->
+        <ul class="nav nav-pills justify-content-center category-tabs mb-4" id="type-tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" data-type="movie" href="#" role="tab">Filmes</a></li>
+            <li class="nav-item"><a class="nav-link" data-type="tv" href="#" role="tab">Séries</a></li>
+            <li class="nav-item"><a class="nav-link" data-type="doramas" href="#" role="tab">Doramas</a></li>
+            <li class="nav-item"><a class="nav-link" data-type="animes" href="#" role="tab">Animes</a></li>
+        </ul>
+
+        <!-- Grade de gêneros -->
+        <div id="genres-container" class="row"></div>
+
+        <!-- Resultados da seleção -->
+        <div id="results-container" style="display:none;">
+            <h3 id="results-title" class="text-white mb-3"></h3>
+            <div id="results-grid" class="movie-grid"></div>
+            <div class="text-center mt-3">
+                <button id="load-more-btn" class="btn btn-theme" style="display:none;" onclick="loadMore()">Carregar mais</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container"><p class="text-center text-muted">© 2024 BrasilFLIX</p></div>
+    </footer>
+
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./bootstrap/js/bootstrap.js"></script>
+    <script src="./js/extras.js"></script>
+    <script>
+        const IMAGE_BASE = "https://image.tmdb.org/t/p/w342";
+        const FALLBACK_POSTER = "https://via.placeholder.com/300x450?text=Sem+Poster";
+
+        let currentType = 'movie';    // 'movie', 'tv', 'doramas', 'animes'
+        let currentGenreId = null;
+        let currentPage = 1;
+        let totalPages = 1;
+        let isLoading = false;
+
+        // Mapear os tabs para o tipo da API
+        const typeMapping = {
+            movie: 'movie',
+            tv: 'tv',
+            doramas: 'doramas',
+            animes: 'animes'
+        };
+
+        // Eventos dos tabs
+        document.querySelectorAll('#type-tabs .nav-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('#type-tabs .nav-link').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentType = this.dataset.type;
+                currentGenreId = null;
+                currentPage = 1;
+                document.getElementById('results-container').style.display = 'none';
+                loadGenres();
+            });
+        });
+
+        // Carregar gêneros do tipo atual
+        async function loadGenres() {
+            const container = document.getElementById('genres-container');
+            container.innerHTML = '<p class="text-white">Carregando gêneros...</p>';
+
+            let mediaType = currentType === 'animes' ? 'tv' : (currentType === 'doramas' ? 'tv' : currentType);
+            const url = `/api/genres/${mediaType}`;
+
+            try {
+                const resp = await fetch(url);
+                const data = await resp.json();
+                if (data.genres && data.genres.length > 0) {
+                    renderGenres(data.genres);
+                } else {
+                    container.innerHTML = '<p class="text-white">Nenhum gênero disponível.</p>';
+                }
+            } catch (err) {
+                container.innerHTML = '<p class="text-white">Erro ao carregar gêneros.</p>';
+            }
+        }
+
+        // Exibir os cards de gênero
+        function renderGenres(genres) {
+            const container = document.getElementById('genres-container');
+            // Cores aleatórias para cada card
+            const colors = [
+                'linear-gradient(135deg, #667eea, #764ba2)',
+                'linear-gradient(135deg, #f093fb, #f5576c)',
+                'linear-gradient(135deg, #4facfe, #00f2fe)',
+                'linear-gradient(135deg, #43e97b, #38f9d7)',
+                'linear-gradient(135deg, #fa709a, #fee140)',
+                'linear-gradient(135deg, #a18cd1, #fbc2eb)',
+                'linear-gradient(135deg, #fccb90, #d57eeb)',
+                'linear-gradient(135deg, #e0c3fc, #8ec5fc)',
+                'linear-gradient(135deg, #f5576c, #f093fb)',
+                'linear-gradient(135deg, #667eea, #764ba2)'
+            ];
+            let html = '';
+            genres.forEach((genre, index) => {
+                const color = colors[index % colors.length];
+                html += `
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="genre-card" style="background:${color};" onclick="selectGenre(${genre.id}, '${genre.name.replace(/'/g, "\\'")}')">
+                            <h5>${genre.name}</h5>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Quando um gênero é selecionado
+        function selectGenre(genreId, genreName) {
+            currentGenreId = genreId;
+            currentPage = 1;
+            document.getElementById('results-title').textContent = `📺 ${genreName}`;
+            document.getElementById('results-container').style.display = 'block';
+            document.getElementById('results-grid').innerHTML = '<p class="text-white">Carregando...</p>';
+            loadResults();
+        }
+
+        // Carregar resultados do gênero
+        async function loadResults() {
+            if (isLoading || currentPage > totalPages) return;
+            isLoading = true;
+
+            let mediaType = currentType;
+            let url = '';
+            // Animes e doramas usam rotas específicas? Vamos tratar via discover genérico
+            if (currentType === 'animes') {
+                // Animes: gênero 16 (animação) + o gênero escolhido, idioma japonês
+                url = `/api/discover?type=tv&page=${currentPage}&sort_by=popularity.desc&with_genres=16,${currentGenreId}&with_original_language=ja&vote_count.gte=5`;
+            } else if (currentType === 'doramas') {
+                // Doramas: séries com idioma coreano/japonês/chinês + gênero escolhido
+                url = `/api/discover?type=tv&page=${currentPage}&sort_by=popularity.desc&with_genres=${currentGenreId}&with_original_language=ko|ja|zh&vote_count.gte=5`;
+            } else {
+                // Filmes ou séries normais
+                url = `/api/genre/${mediaType}/${currentGenreId}?page=${currentPage}&sort_by=popularity.desc`;
+            }
+
+            try {
+                const resp = await fetch(url);
+                const data = await resp.json();
+                const results = data.results || [];
+                if (currentPage === 1) {
+                    document.getElementById('results-grid').innerHTML = '';
+                }
+                appendResults(results);
+                totalPages = data.total_pages || 1;
+                currentPage++;
+                const loadMoreBtn = document.getElementById('load-more-btn');
+                loadMoreBtn.style.display = currentPage <= totalPages ? 'inline-block' : 'none';
+            } catch (err) {
+                console.error(err);
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        function appendResults(items) {
+            const grid = document.getElementById('results-grid');
+            items.forEach(item => {
+                const title = item.title || item.name || 'Sem título';
+                const poster = item.poster_path ? IMAGE_BASE + item.poster_path : FALLBACK_POSTER;
+                const mediaType = currentType === 'animes' || currentType === 'doramas' || currentType === 'tv' ? 'tv' : 'movie';
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.innerHTML = `
+                    <img src="${poster}" alt="${title}" onerror="this.src='${FALLBACK_POSTER}'">
+                    <div class="info">${title}</div>
+                `;
+                card.addEventListener('click', () => {
+                    window.location.href = `detalhes.html?id=${item.id}&media=${mediaType}`;
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        function loadMore() {
+            loadResults();
+        }
+
+        // Inicializa com filmes
+        loadGenres();
+    </script>
+</body>
 </html>

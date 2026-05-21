@@ -415,6 +415,32 @@ app.get("/ads.txt", (req, res) => {
     res.send("google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0");
 });
 
+// ==================== ROTAS DE GÊNEROS ====================
+
+// Lista de gêneros para um tipo (movie ou tv)
+app.get("/api/genres/:type", async (req, res) => {
+    const media = normalizeMedia(req.params.type || "movie");
+    const data = await tmdbRequest(`/genre/${media}/list`, {
+        language: "pt-BR"
+    });
+    sendTmdbResult(res, data);
+});
+
+// Conteúdo por gênero com paginação
+app.get("/api/genre/:type/:genreId", async (req, res) => {
+    const media = normalizeMedia(req.params.type || "movie");
+    const genreId = req.params.genreId;
+    const page = normalizePage(req.query.page);
+    const sort = req.query.sort_by || "popularity.desc";
+
+    const data = await tmdbRequest(`/discover/${media}`, {
+        page,
+        sort_by: sort,
+        with_genres: genreId,
+        "vote_count.gte": 5
+    });
+    sendTmdbResult(res, data);
+});
 // Fallback para páginas HTML
 app.use((req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
@@ -437,6 +463,69 @@ app.get("/api/admin/users", (req, res) => {
     }
     const users = db.prepare("SELECT id, name, email, created_at FROM users ORDER BY created_at DESC").all();
     res.json({ total: users.length, users });
+});
+// ==================== ROTAS DE DESENHOS ====================
+
+// Séries animadas populares (não animes)
+app.get("/api/desenhos/series", async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const country = req.query.country || "";
+    const params = {
+        page,
+        sort_by: "popularity.desc",
+        with_genres: "16",
+        without_original_language: "ja",
+        "vote_count.gte": 5
+    };
+    if (country) params.with_origin_country = country;
+
+    const data = await tmdbRequest("/discover/tv", params);
+    sendTmdbResult(res, data);
+});
+
+// Filmes animados populares (não animes)
+app.get("/api/desenhos/filmes", async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const country = req.query.country || "";
+    const params = {
+        page,
+        sort_by: "popularity.desc",
+        with_genres: "16",
+        without_original_language: "ja",
+        "vote_count.gte": 5
+    };
+    if (country) params.with_origin_country = country;
+    // Para filmes, usamos região de produção (region) em vez de origin_country? 
+    // O TMDB para filmes usa `with_origin_country` também, mas o campo é `production_countries`.
+    // Vamos usar `region` como fallback para filtrar por país de produção.
+    if (country) params.region = country;
+
+    const data = await tmdbRequest("/discover/movie", params);
+    sendTmdbResult(res, data);
+});
+
+// Busca de desenhos (séries e filmes)
+app.get("/api/desenhos/search", async (req, res) => {
+    const query = (req.query.query || "").trim();
+    const type = req.query.type || "tv"; // tv ou movie
+    const page = parseInt(req.query.page) || 1;
+    if (!query) return res.json({ results: [] });
+
+    const data = await tmdbRequest(`/search/${type}`, {
+        query,
+        page,
+        include_adult: false
+    });
+
+    // Filtra apenas animações e exclui animes japoneses
+    if (data.results) {
+        data.results = data.results.filter(item => {
+            const isAnimation = item.genre_ids && item.genre_ids.includes(16);
+            const isJapanese = item.original_language === "ja";
+            return isAnimation && !isJapanese;
+        });
+    }
+    sendTmdbResult(res, data);
 });
 // ==================== INICIAR SERVIDOR ====================
 

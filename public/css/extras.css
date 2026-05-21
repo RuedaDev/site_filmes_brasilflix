@@ -1,5 +1,5 @@
 /* ==========================================
-   FUNCIONALIDADES EXTRAS - BRASILFLIX (CSS UNIFICADO)
+   FUNCIONALIDADES EXTRAS - BRASILFLIX (UNIFICADO)
    ========================================== */
 
 /* ---------- BOTÕES FLUTUANTES ---------- */
@@ -254,18 +254,64 @@
     color: white;
 }
 
-/* ---------- TÍTULO DAS SEÇÕES MAIOR ---------- */
+/* ---------- TÍTULO DAS SEÇÕES ---------- */
 .bf-section-head .bf-kicker,
 .bf-home-block .bf-kicker {
     font-size: 1.6rem !important;
     font-weight: bold;
 }
 
+/* ---------- BANNER DA HOME ---------- */
+.bf-hero-media {
+    background-image: url('../images/banner_brasilflix.png') !important;
+    background-size: cover;
+    background-position: center;
+}
+.bf-hero-shade {
+    background: rgba(0,0,0,0.4) !important;
+}
+
+/* ---------- BANNER DINÂMICO DAS CATEGORIAS ---------- */
+.bf-category-banner {
+    background-size: cover;
+    background-position: center;
+    min-height: 300px;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.bf-banner-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.3));
+    width: 100%;
+    padding: 40px 0;
+}
+.bf-banner-title {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.bf-banner-subtitle {
+    color: #ccc;
+    font-size: 1.2rem;
+    margin: 0;
+}
+@media (max-width: 768px) {
+    .bf-category-banner {
+        min-height: 200px;
+    }
+    .bf-banner-title {
+        font-size: 1.8rem;
+    }
+}
+
 /* ==========================================
-   RESPONSIVIDADE (MOBILE) - TUDO UNIFICADO
+   RESPONSIVIDADE GERAL
    ========================================== */
 @media (max-width: 768px) {
-    /* Botões flutuantes */
     .floating-actions {
         bottom: 20px !important;
         right: 15px !important;
@@ -279,43 +325,63 @@
         font-size: 1.1rem;
     }
     .floating-btn .floating-label {
-        display: none;  /* apenas ícone */
+        display: none;
     }
-
-    /* Menu compartilhar */
     .share-menu {
         bottom: 70px;
         right: 60px;
         min-width: 180px;
     }
-
-    /* Modal trailer */
     .modal-trailer-content {
         width: 95%;
     }
     .modal-trailer iframe {
         height: 250px;
     }
-
-    /* Grid de cards */
     .bf-catalog-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 10px;
     }
-
-    /* Botões Trailer e Favoritar empilhados */
     .btn-trailer,
     .btn-fav-detail {
         display: block;
         width: 100%;
         margin: 5px 0;
     }
-
-    /* Player: espaço extra para os botões flutuantes */
     .bf-player-section {
         padding-bottom: 100px !important;
     }
     .bf-player-shell iframe {
         height: 250px;
     }
-}   
+}
+.bf-page-hero, .anime-hero, .desenho-hero {
+    min-height: 600px;               /* altura mínima maior */
+    padding: 80px 0;                 /* mais espaço interno vertical */
+    display: flex;
+    align-items: center;             /* centraliza o conteúdo verticalmente */
+    background-size: cover !important;
+    background-position: center !important;
+    position: relative;
+    overflow: hidden;                /* evita que a imagem vaze */
+}
+.bf-page-hero::before, .anime-hero::before, .desenho-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1;
+}
+.bf-page-hero .container, .anime-hero .container, .desenho-hero .container {
+    position: relative;
+    z-index: 3;
+}
+@media (max-width: 768px) {
+    .bf-page-hero,
+    .anime-hero,
+    .desenho-hero {
+        min-height: 350px;
+        padding: 50px 0;
+    }
+}

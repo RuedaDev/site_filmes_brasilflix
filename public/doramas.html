@@ -11,42 +11,42 @@
     <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
     <link href="./css/theme.css" rel="stylesheet" type="text/css" />
     <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
     <style>
-        .dorama-filters {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+        .dorama-hero {
+            background-size: cover;
+            background-position: center;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            position: relative;
             border-radius: 10px;
             margin-bottom: 30px;
-        }
-        .country-btn {
-            padding: 10px 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-            margin: 5px;
-        }
-        .country-btn:hover, .country-btn.active {
-            background: rgba(255,255,255,0.3);
-            border-color: white;
+            overflow: hidden;
         }
         .section-title {
             color: white;
             text-align: center;
             margin: 30px 0;
         }
-    </style>
-    <script src="https://pl29507705.effectivecpmnetwork.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script>
-    <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
-<div id="container-ca14ad0de7291d1f27386bee56f15bac"></div>
-<script src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
+        .titulo-dorama {
+        font-size: 80px;
+        font-weight: bold;
+        font-size: clamp(32px, 6vw, 60px);
+        text-shadow: 3px 3px 10px rgba(0,0,0,0.9);
+    }
 
+    .subtitulo-dorama {
+        font-size: 60px;
+        font-size: clamp(18px, 3vw, 28px);
+        text-shadow: 3px 3px 10px rgba(0,0,0,0.9);
+    }
+    </style>
+    <!-- Scripts de anúncios (mantenha os seus) -->
+    <script src="https://seenimplieddump.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script> 
+    <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
+    <script src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
 </head>
-<link href="./css/extras.css" rel="stylesheet" type="text/css" />
-<script src="./js/extras.js"></script>
 <body class="body brasilflix-body" data-bf-page="doramas">
     <header class="header header-horizontal header-view-pannel brasilflix-header">
         <div class="container">
@@ -66,6 +66,7 @@
                         <li class="nav-item"><a class="nav-link active" href="doramas.html">Doramas</a></li>
                         <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
                         <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
+                        <li class="nav-item"><a class="nav-link" href="desenhos.html">Desenhos</a></li>
                     </ul>
                 </div>
             </nav>
@@ -73,25 +74,30 @@
     </header>
 
     <main>
-        <section class="dorama-filters">
-            <div class="container">
-                <h2 class="text-white text-center">🎌 Doramas por País</h2>
-                <div class="text-center">
-                    <button class="country-btn active" data-country="all">🌏 Todos</button>
-                    <button class="country-btn" data-country="KR">🇰🇷 Coreia</button>
-                    <button class="country-btn" data-country="JP">🇯🇵 Japão</button>
-                    <button class="country-btn" data-country="CN">🇨🇳 China</button>
-                    <button class="country-btn" data-country="TW">🇹🇼 Taiwan</button>
-                    <button class="country-btn" data-country="TH">🇹🇭 Tailândia</button>
-                </div>
+        <!-- Hero com banner e barra de pesquisa -->
+        <section class="dorama-hero" style="background-image: url('https://image.tmdb.org/t/p/original/3yEHM2HT2vrUtO93YzTJNgEfiZG.jpg');
+        background-size: cover; background-position: center; position: relative; min-height: 700px; display: flex; align-items: center; overflow: hidden;">
+            <div class="container" style="position: relative; z-index: 2;">
+                <h2 class="text-white text-center titulo-dorama" >🎌 Doramas</h2>
+                <p class="text-center text-white subtitulo-dorama">Os maiores sucessos asiáticos em um só lugar</p>
+                
+                <!-- Barra de pesquisa com botão -->
                 <div class="row mt-3">
                     <div class="col-md-8 mx-auto">
-                        <input type="text" id="bf-title-input" class="form-control" placeholder="🔍 Buscar doramas...">
+                        <div class="input-group">
+                            <input type="text" id="bf-title-input" class="form-control" placeholder="🔍 Buscar doramas...">
+                            <div class="input-group-append">
+                                <button class="btn btn-theme" type="button" onclick="searchDoramas()">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- Catálogo -->
         <section class="section-long">
             <div class="container">
                 <h2 class="section-title">📺 Doramas Populares</h2>
@@ -108,31 +114,22 @@
 
     <script src="./js/jquery-3.3.1.js"></script>
     <script src="./bootstrap/js/bootstrap.js"></script>
+    <script src="./js/extras.js"></script>
     
     <script>
         const IMAGE_BASE = "https://image.tmdb.org/t/p/w780";
         const FALLBACK_POSTER = "https://via.placeholder.com/500x750?text=Sem+Poster";
         
         let currentPage = 1;
-        let currentCountry = 'all';
         let isLoading = false;
         let totalPages = 1;
+        let searchMode = false;
 
         document.addEventListener('DOMContentLoaded', () => {
             console.log('🎌 Doramas carregado');
             loadDoramas();
             
-            document.querySelectorAll('.country-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentCountry = this.dataset.country;
-                    currentPage = 1;
-                    document.getElementById('bf-dorama-catalog').innerHTML = '';
-                    loadDoramas();
-                });
-            });
-            
+            // Busca em tempo real (opcional, mantive o input event)
             let searchTimer;
             document.getElementById('bf-title-input').addEventListener('input', function() {
                 clearTimeout(searchTimer);
@@ -140,6 +137,7 @@
                     if (this.value.trim()) {
                         searchDoramas();
                     } else {
+                        searchMode = false;
                         currentPage = 1;
                         document.getElementById('bf-dorama-catalog').innerHTML = '';
                         loadDoramas();
@@ -149,66 +147,97 @@
         });
 
         async function loadDoramas() {
-            if (isLoading || currentPage > totalPages) return;
-            
-            isLoading = true;
-            showMessage('🎌 Carregando doramas...');
-            
-            try {
-                let url = currentCountry === 'all' 
-                    ? `/api/doramas/popular?page=${currentPage}`
-                    : `/api/doramas/by-country/${currentCountry}?page=${currentPage}`;
-                
-                console.log('🔍 URL:', url);
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                console.log('📊 Dados:', data);
-                
-                if (data.results && data.results.length > 0) {
-                    renderDoramas(data.results, true);
-                    totalPages = data.total_pages || 1;
-                    currentPage++;
-                    
-                    if (currentPage > totalPages) {
-                        document.getElementById('load-more-btn').style.display = 'none';
-                    }
-                    showMessage(`${data.total_results} doramas disponíveis`);
-                } else {
-                    showMessage('Nenhum dorama encontrado.');
-                }
-            } catch (error) {
-                console.error('❌ Erro:', error);
-                showMessage('Erro ao carregar. Tente novamente.');
-            } finally {
-                isLoading = false;
+    if (isLoading || currentPage > totalPages) return;
+    
+    isLoading = true;
+    showMessage('🎌 Carregando doramas...');
+    
+    try {
+        // Parâmetros base: séries asiáticas, excluindo animações
+        const params = new URLSearchParams({
+            type: 'tv',
+            page: currentPage,
+            sort_by: 'popularity.desc',
+            'vote_count.gte': 5,
+            with_original_language: 'ko|ja|zh',      // idiomas asiáticos
+            with_origin_country: 'KR|JP|CN|TW',      // países asiáticos
+            with_genres: '18',                        // gênero drama (opcional, mas ajuda)
+            without_genres: '16'                      // tenta excluir animação (se a API aceitar)
+        });
+        const url = `/api/discover?${params.toString()}`;
+        console.log('🔍 URL:', url);
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // Filtro manual rigoroso
+        const asianCountries = ['KR', 'JP', 'CN', 'TW', 'TH', 'HK', 'SG'];
+        const doramas = (data.results || []).filter(item => {
+            // Deve ter país de origem asiático
+            const isAsian = item.origin_country && 
+                            item.origin_country.some(c => asianCountries.includes(c));
+            // Não pode ser animação (gênero 16)
+            const notAnime = !(item.genre_ids || []).includes(16);
+            return isAsian && notAnime;
+        });
+        
+        console.log('🎯 Doramas filtrados:', doramas.length);
+        
+        if (doramas.length > 0) {
+            if (currentPage === 1) {
+                document.getElementById('bf-dorama-catalog').innerHTML = '';
             }
+            renderDoramas(doramas, true);
+            totalPages = Math.min(data.total_pages || 1, 10);
+            currentPage++;
+            
+            if (currentPage > totalPages) {
+                document.getElementById('load-more-btn').style.display = 'none';
+            }
+            showMessage(`${doramas.length} doramas carregados`);
+        } else {
+            showMessage('Nenhum dorama encontrado.');
+            document.getElementById('load-more-btn').style.display = 'none';
         }
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        showMessage('Erro ao carregar. Tente novamente.');
+    } finally {
+        isLoading = false;
+    }
+}
 
         async function searchDoramas() {
             const query = document.getElementById('bf-title-input').value.trim();
             if (!query) return;
             
+            searchMode = true;
             showMessage('🔍 Buscando...');
             document.getElementById('bf-dorama-catalog').innerHTML = '';
             
             try {
-                const response = await fetch(`/api/doramas/search?query=${encodeURIComponent(query)}`);
+                const response = await fetch(`/api/search?type=tv&query=${encodeURIComponent(query)}`);
                 const data = await response.json();
                 
-                if (data.results && data.results.length > 0) {
-                    renderDoramas(data.results);
-                    showMessage(`${data.results.length} dorama(s) encontrado(s)`);
+                // Filtra apenas conteúdo asiático
+                const asianResults = (data.results || []).filter(item =>
+                    item.original_language && ['ko', 'ja', 'zh', 'th'].includes(item.original_language)
+                );
+                
+                if (asianResults.length > 0) {
+                    renderDoramas(asianResults);
+                    showMessage(`${asianResults.length} dorama(s) encontrado(s)`);
                 } else {
                     showMessage('Nenhum dorama encontrado.');
                 }
+                document.getElementById('load-more-btn').style.display = 'none';
             } catch (error) {
                 showMessage('Erro na busca.');
             }
         }
 
         function loadMoreDoramas() {
-            loadDoramas();
+            if (!searchMode) loadDoramas();
         }
 
         function renderDoramas(items, append = false) {
@@ -218,11 +247,12 @@
             const flags = { KR: '🇰🇷', JP: '🇯🇵', CN: '🇨🇳', TW: '🇹🇼', TH: '🇹🇭' };
             
             const html = items.map(item => {
-                const title = item.name || 'Sem título';
+                const title = item.name || item.title || 'Sem título';
                 const poster = item.poster_path ? IMAGE_BASE + item.poster_path : FALLBACK_POSTER;
                 const year = item.first_air_date ? item.first_air_date.split('-')[0] : '';
                 const rating = item.vote_average ? `★ ${item.vote_average.toFixed(1)}` : '';
-                const flag = item.origin_country ? flags[item.origin_country[0]] || '' : '';
+                const country = item.origin_country ? item.origin_country[0] : '';
+                const flag = flags[country] || '';
                 
                 return `
                     <div class="col-6 col-md-4 col-lg-3 mb-4">
@@ -249,8 +279,9 @@
             document.getElementById('bf-message').textContent = text;
         }
 
+        // Scroll infinito (apenas em modo catálogo, não em busca)
         window.addEventListener('scroll', () => {
-            if (isLoading || currentPage > totalPages) return;
+            if (isLoading || currentPage > totalPages || searchMode) return;
             const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
             if (scrollTop + clientHeight >= scrollHeight - 500) {
                 loadDoramas();

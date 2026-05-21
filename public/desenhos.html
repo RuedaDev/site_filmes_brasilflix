@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Desenhos - BrasilFLIX</title>
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
+    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
+    
+    <style>
+        .desenho-hero {
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .tab-btn {
+            padding: 10px 25px;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: rgba(255,255,255,0.5);
+            border-color: white;
+            color: #333;
+        }
+        
+    </style>
+</head>
+<body class="body brasilflix-body" data-bf-page="desenhos">
+    <header class="header header-horizontal header-view-pannel brasilflix-header">
+        <div class="container">
+            <nav class="navbar">
+                <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
+                    <span class="logo-element"><span class="logo-tape"><span class="svg-content svg-fill-theme" data-svg="./images/svg/logo-part.svg"></span></span><span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span></span>
+                </a>
+                <button class="navbar-toggler" type="button"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
+                <div class="navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="filmes.html">Filmes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="series.html">Series</a></li>
+                        <li class="nav-item"><a class="nav-link" href="doramas.html">Doramas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="animes.html">Animes</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="desenhos.html">Desenhos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="categorias.html">Categorias</a></li>
+                    </ul>
+                    <div class="navbar-extra"><a class="btn-theme btn" href="login.html"><i class="fas fa-user"></i>&nbsp;&nbsp;Login</a></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="desenho-hero" style="background-image: url('https://image.tmdb.org/t/p/original/rBF8wVQN8hTWHspVZBlI3h7HZJ.jpg'); 
+        background-size: cover; background-position: center; position: relative; min-height: 700px; display: flex; align-items: center; overflow: hidden;">
+    <!-- Overlay escuro -->
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1;"></div>
+    
+    <!-- Conteúdo textual (acima do overlay) -->
+    <div class="container" style="position: relative; z-index: 2;">
+        <h2 class="text-center text-white">🎨 Desenhos Animados</h2>
+        <p class="text-center text-white mb-3">Séries e filmes de animação ocidental</p>
+
+        <!-- Abas Séries / Filmes -->
+        <div class="text-center mb-3">
+            <button class="tab-btn active" data-type="series">📺 Séries</button>
+            <button class="tab-btn" data-type="movies">🎬 Filmes</button>
+        </div>
+
+
+        <!-- Busca -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <input type="text" id="search-input" class="form-control" placeholder="🔍 Buscar desenho...">
+            </div>
+        </div>
+    </div>
+</section>
+        <!-- Catálogo -->
+        <section class="section-long">
+            <div class="container">
+                <div id="message" class="text-center text-white mb-3"></div>
+                <div id="catalog-grid" class="bf-catalog-grid" aria-live="polite"></div>
+                <div class="text-center mt-4">
+                    <button id="load-more-btn" class="btn btn-theme btn-lg">Carregar Mais</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container"><p class="text-center text-muted">© 2026 BrasilFLIX</p></div>
+    </footer>
+
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./bootstrap/js/bootstrap.js"></script>
+    <script src="./js/extras.js"></script>
+    <script>
+        const IMAGE_BASE = "https://image.tmdb.org/t/p/w342";
+        const FALLBACK_POSTER = "https://via.placeholder.com/300x450?text=Sem+Poster";
+        let currentType = "series"; // 'series' ou 'movies'
+        let currentPage = 1;
+        let totalPages = 1;
+        let isLoading = false;
+        let searchQuery = "";
+
+        // Abas
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentType = this.dataset.type;
+                currentPage = 1;
+                searchQuery = "";
+                document.getElementById('search-input').value = "";
+                document.getElementById('catalog-grid').innerHTML = '';
+                loadContent();
+            });
+        });
+
+        // Filtro de país
+        // Filtro de país – versão corrigida
+    document.querySelectorAll('.btn-country').forEach(btn => {
+        btn.addEventListener('click', function() {
+             // Remove a classe 'active' de TODOS os botões de país
+            document.querySelectorAll('.btn-country').forEach(b => b.classList.remove('active'));
+            // Adiciona apenas no botão clicado
+            this.classList.add('active');
+            currentCountry = this.dataset.country;
+            currentPage = 1;
+            document.getElementById('catalog-grid').innerHTML = '';
+            loadContent();
+        });
+    });
+
+        // Busca
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchQuery = this.value.trim();
+                currentPage = 1;
+                document.getElementById('catalog-grid').innerHTML = '';
+                if (searchQuery) {
+                    searchContent();
+                } else {
+                    loadContent();
+                }
+            }, 500);
+        });
+
+        async function loadContent() {
+    if (isLoading || currentPage > totalPages) return;
+    isLoading = true;
+    showMessage('Carregando...');
+
+    const mediaType = currentType === 'series' ? 'tv' : 'movie';
+    const params = new URLSearchParams({
+        type: mediaType,
+        page: currentPage,
+        sort_by: 'popularity.desc',
+        genre: '16',                 // animação
+        'vote_count.gte': 5,
+        without_original_language: 'ja'   // exclui animes japoneses
+    });
+
+    const url = `/api/discover?${params.toString()}`;
+    console.log('🔍 URL:', url);
+
+    try {
+        const resp = await fetch(url);
+        const data = await resp.json();
+        const items = (data.results || []).filter(item =>
+            item.original_language !== 'ja' &&
+            (item.genre_ids || []).includes(16)
+        );
+        if (currentPage === 1) {
+            document.getElementById('catalog-grid').innerHTML = '';
+        }
+        appendCards(items);
+        totalPages = data.total_pages || 1;
+        currentPage++;
+        document.getElementById('load-more-btn').style.display = currentPage > totalPages ? 'none' : 'inline-block';
+        showMessage(`${data.total_results} resultados`);
+    } catch (err) {
+        showMessage('Erro ao carregar.');
+    } finally {
+        isLoading = false;
+    }
+}
+      
+        async function searchContent() {
+    if (!searchQuery) return;
+    showMessage('🔍 Buscando...');
+    const type = currentType === 'series' ? 'tv' : 'movie';
+    try {
+        const resp = await fetch(`/api/search?type=${type}&query=${encodeURIComponent(searchQuery)}`);
+        const data = await resp.json();
+        // Filtra apenas animações (gênero 16) e exclui animes japoneses
+        const filtered = (data.results || []).filter(item =>
+            item.genre_ids &&
+            item.genre_ids.includes(16) &&
+            item.original_language !== 'ja'
+        );
+        appendCards(filtered, false);
+        showMessage(`${filtered.length} encontrado(s)`);
+        document.getElementById('load-more-btn').style.display = 'none';
+    } catch (err) {
+        showMessage('Erro ao buscar.');
+    }
+}
+        function appendCards(items, append = true) {
+            const grid = document.getElementById('catalog-grid');
+            if (!append) grid.innerHTML = '';
+            const mediaType = currentType === 'series' ? 'tv' : 'movie';
+            items.forEach(item => {
+                const title = item.title || item.name || 'Sem título';
+                const poster = item.poster_path ? IMAGE_BASE + item.poster_path : FALLBACK_POSTER;
+                const card = document.createElement('article');
+                card.className = 'bf-card';
+                card.innerHTML = `
+                    <div class="bf-card-poster" style="background-image:url('${poster}')">
+                        <a class="bf-card-info-link" href="detalhes.html?id=${item.id}&media=${mediaType}"></a>
+                    </div>
+                    <div class="bf-card-body">
+                        <h3>${title}</h3>
+                        <a class="btn btn-theme" href="detalhes.html?id=${item.id}&media=${mediaType}">Assistir</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function showMessage(text) {
+            document.getElementById('message').textContent = text;
+        }
+
+        document.getElementById('load-more-btn').addEventListener('click', loadContent);
+
+        // Scroll infinito
+        window.addEventListener('scroll', () => {
+            if (isLoading || currentPage > totalPages || searchQuery) return;
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            if (scrollTop + clientHeight >= scrollHeight - 500) {
+                loadContent();
+            }
+        });
+
+        // Inicial
+        loadContent();
+    </script>
+    
+</body>
+</html>
