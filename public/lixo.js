@@ -1,6 +1,5 @@
 // BrasilFLIX backend completo com autenticação
 const path = require("path");
-const fs = require("fs");
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
@@ -8,7 +7,7 @@ const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
-const cookieParser = require("cookie-parser");
+const cookieParser = require('cookie-parser');
 dotenv.config();
 
 const app = express();
@@ -35,8 +34,9 @@ db.exec(`
 `);
 try { db.exec(`ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0`); } catch (e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN phone TEXT`); } catch (e) {}
-try { db.exec(`ALTER TABLE users ADD COLUMN premium_activated_at DATETIME`); } catch (e) {}
-
+try {
+    db.exec(`ALTER TABLE users ADD COLUMN premium_activated_at DATETIME`);
+} catch (e) { /* coluna já existe */ }
 db.exec(`
     CREATE TABLE IF NOT EXISTS favorites (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,12 +61,13 @@ db.exec(`
     );
 `);
 
-// ---------- MIDDLEWARES ----------
+// Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(express.static(PUBLIC_DIR));
 app.use(cookieParser());
-
-// Detecta premium via cookie JWT
+app.get("/", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html")));
+// Middleware para detectar usuário premium via cookie
 app.use((req, res, next) => {
     const token = req.cookies?.token;
     if (token) {
@@ -81,26 +82,6 @@ app.use((req, res, next) => {
     }
     next();
 });
-
-// Filtra scripts de anúncio para usuários premium (antes do static)
-app.use((req, res, next) => {
-    if (req.isPremium && req.path.match(/\.html$/)) {
-        const filePath = path.join(PUBLIC_DIR, req.path);
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) return next(); // se não encontrar, deixa o static tentar
-            let cleaned = data
-                .replace(/<script[^>]*src="[^"]*(?:seenimplieddump|effectivecpmnetwork)[^"]*"[^>]*><\/script>/gi, '')
-                .replace(/<div id="container-ca14ad0de7291d1f27386bee56f15bac"><\/div>/gi, '');
-            res.send(cleaned);
-        });
-    } else {
-        next();
-    }
-});
-
-// Servir arquivos estáticos normalmente
-app.use(express.static(PUBLIC_DIR));
-
 // CSP permissivo
 app.use((req, res, next) => {
     res.setHeader("Content-Security-Policy",
@@ -114,11 +95,6 @@ app.use((req, res, next) => {
     res.setHeader("X-Frame-Options", "ALLOWALL");
     res.setHeader("Access-Control-Allow-Origin", "*");
     next();
-});
-
-// Rota raiz (home)
-app.get("/", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
 });
 
 // ==================== FUNÇÕES AUXILIARES ====================
@@ -187,6 +163,7 @@ app.post("/api/auth/register", async (req, res) => {
         const hash = await bcrypt.hash(password, 10);
         const result = db.prepare("INSERT INTO users (name, email, password, phone) VALUES (?,?,?,?)").run(name, email, hash, cleanPhone);
         const token = jwt.sign({ id: result.lastInsertRowid, name, email, is_premium: 0 }, JWT_SECRET, { expiresIn: "30d" });
+        // Após gerar o token JWT
         res.cookie('token', token, {
             httpOnly: true,
             secure: false, // true em produção com HTTPS
@@ -210,26 +187,109 @@ app.post("/api/auth/login", async (req, res) => {
             { id: user.id, name: user.name, email: user.email, is_premium: user.is_premium || 0 },
             JWT_SECRET, { expiresIn: "30d" }
         );
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: false, // true em produção com HTTPS
-            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 dias
-        });
+        // Após gerar o token JWT
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: false, // true em produção com HTTPS
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 dias
+    });
         res.json({ message: "OK", token, user: { id: user.id, name: user.name, email: user.email, is_premium: user.is_premium || 0 } });
     } catch (e) { res.status(500).json({ error: "Erro no login" }); }
 });
 
-// Perfil do usuário (versão unificada e segura)
+app.get("/api/auth/profile", authenticateToken, (req, res) => {
+    console.log("📥 [PERFIL] Requisição recebida para usuário ID:", req.user.id);
+    
+    try {
+        const user = db.prepare(`
+            SELECT id, name, email, phone, is_premium, premium_expires_at, created_at
+            FROM users WHERE id = ?
+        `).get(req.user.id);
+        
+        if (!user) {
+            console.log("❌ [PERFIL] Usuário não encontrado");
+            return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+
+        // Verifica e corrige expiração do premium
+        const now = new Date();
+        const expiresAt = user.premium_expires_at ? new Date(user.premium_expires_at) : null;
+        if (user.is_premium && expiresAt && expiresAt < now) {
+            console.log("⏰ [PERFIL] Premium expirado, removendo...");
+            db.prepare("UPDATE users SET is_premium = 0, premium_expires_at = NULL WHERE id = ?").run(user.id);
+            user.is_premium = 0;
+            user.premium_expires_at = null;
+        }
+
+        const daysRemaining = user.is_premium && expiresAt
+            ? Math.max(0, Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24)))
+            : 0;
+
+        const favoritesCount = db.prepare("SELECT COUNT(*) as count FROM favorites WHERE user_id = ?").get(user.id).count;
+        const historyCount = db.prepare("SELECT COUNT(*) as count FROM history WHERE user_id = ?").get(user.id).count;
+
+        const responseData = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            is_premium: user.is_premium,
+            premium_expires_at: user.premium_expires_at,
+            created_at: user.created_at,
+            daysRemaining,
+            favoritesCount,
+            historyCount
+        };
+
+        console.log("✅ [PERFIL] Dados retornados com sucesso");
+        res.json(responseData);
+    } catch (error) {
+        console.error("💥 [PERFIL] Erro interno:", error);
+        res.status(500).json({ error: "Erro interno do servidor" });
+    }
+});
+
+// ==================== ADMIN (antes do fallback) ====================
+app.get("/admin", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "admin.html")));
+
+app.get("/api/admin/dashboard", authenticateAdmin, (req, res) => {
+    try {
+        res.json({
+            totalUsers: db.prepare("SELECT COUNT(*) as c FROM users").get().c,
+            premiumUsers: db.prepare("SELECT COUNT(*) as c FROM users WHERE is_premium = 1").get().c,
+            totalFavorites: db.prepare("SELECT COUNT(*) as c FROM favorites").get().c,
+            totalHistory: db.prepare("SELECT COUNT(*) as c FROM history").get().c
+        });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get("/api/admin/users", authenticateAdmin, (req, res) => {
+    const users = db.prepare(`
+        SELECT u.id, u.name, u.email, u.phone, u.is_premium, u.created_at,
+               COUNT(DISTINCT f.id) as favorites_count,
+               COUNT(DISTINCT h.id) as history_count
+        FROM users u
+        LEFT JOIN favorites f ON u.id = f.user_id
+        LEFT JOIN history h ON u.id = h.user_id
+        GROUP BY u.id
+        ORDER BY u.created_at DESC
+    `).all();
+    res.json(users);
+});
 app.get("/api/auth/profile", authenticateToken, (req, res) => {
     console.log("📥 [PERFIL] ID:", req.user.id);
+    
     try {
+        // Obtém todos os dados do usuário de forma segura
         const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.user.id);
         if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
 
+        // Garante valores padrão para colunas que podem não existir
         const isPremium = (user.is_premium !== undefined) ? user.is_premium : 0;
         const premiumExpiresAt = user.premium_expires_at || null;
         const phone = user.phone || null;
 
+        // Verifica expiração do premium
         let finalIsPremium = isPremium;
         let finalExpiresAt = premiumExpiresAt;
         const now = new Date();
@@ -266,35 +326,6 @@ app.get("/api/auth/profile", authenticateToken, (req, res) => {
         res.status(500).json({ error: "Erro interno: " + error.message });
     }
 });
-
-// ==================== ADMIN ====================
-app.get("/admin", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "admin.html")));
-
-app.get("/api/admin/dashboard", authenticateAdmin, (req, res) => {
-    try {
-        res.json({
-            totalUsers: db.prepare("SELECT COUNT(*) as c FROM users").get().c,
-            premiumUsers: db.prepare("SELECT COUNT(*) as c FROM users WHERE is_premium = 1").get().c,
-            totalFavorites: db.prepare("SELECT COUNT(*) as c FROM favorites").get().c,
-            totalHistory: db.prepare("SELECT COUNT(*) as c FROM history").get().c
-        });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-app.get("/api/admin/users", authenticateAdmin, (req, res) => {
-    const users = db.prepare(`
-        SELECT u.id, u.name, u.email, u.phone, u.is_premium, u.created_at,
-               COUNT(DISTINCT f.id) as favorites_count,
-               COUNT(DISTINCT h.id) as history_count
-        FROM users u
-        LEFT JOIN favorites f ON u.id = f.user_id
-        LEFT JOIN history h ON u.id = h.user_id
-        GROUP BY u.id
-        ORDER BY u.created_at DESC
-    `).all();
-    res.json(users);
-});
-
 app.post("/api/admin/toggle-premium/:userId", authenticateAdmin, (req, res) => {
     const userId = req.params.userId;
     const user = db.prepare("SELECT is_premium, premium_expires_at FROM users WHERE id = ?").get(userId);
@@ -302,7 +333,7 @@ app.post("/api/admin/toggle-premium/:userId", authenticateAdmin, (req, res) => {
 
     const newStatus = user.is_premium ? 0 : 1;
     const expiresAt = newStatus === 1 
-        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()  // 30 dias a partir de agora
         : null;
 
     db.prepare("UPDATE users SET is_premium = ?, premium_expires_at = ? WHERE id = ?")
@@ -314,38 +345,6 @@ app.post("/api/admin/toggle-premium/:userId", authenticateAdmin, (req, res) => {
         premium_expires_at: expiresAt
     });
 });
-
-app.delete("/api/admin/users/:userId", authenticateAdmin, (req, res) => {
-    const userId = req.params.userId;
-    const user = db.prepare("SELECT id FROM users WHERE id = ?").get(userId);
-    if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-    
-    db.prepare("DELETE FROM favorites WHERE user_id = ?").run(userId);
-    db.prepare("DELETE FROM history WHERE user_id = ?").run(userId);
-    db.prepare("DELETE FROM users WHERE id = ?").run(userId);
-    
-    res.json({ message: "Usuário excluído com sucesso!" });
-});
-
-app.get("/api/admin/users/search", authenticateAdmin, (req, res) => {
-    const { q } = req.query;
-    if (!q || q.trim().length === 0) return res.json([]);
-    const term = `%${q.trim()}%`;
-    const users = db.prepare(`
-        SELECT u.id, u.name, u.email, u.phone, u.is_premium, u.created_at,
-               COUNT(DISTINCT f.id) as favorites_count,
-               COUNT(DISTINCT h.id) as history_count
-        FROM users u
-        LEFT JOIN favorites f ON u.id = f.user_id
-        LEFT JOIN history h ON u.id = h.user_id
-        WHERE u.name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?
-        GROUP BY u.id
-        ORDER BY u.created_at DESC
-        LIMIT 50
-    `).all(term, term, term);
-    res.json(users);
-});
-
 // ==================== ROTAS TMDB COMPLETAS ====================
 
 // Health
@@ -408,36 +407,6 @@ app.get("/api/details/:type/:id", async (req, res) => {
 });
 
 // ==================== DORAMAS ====================
-function isAnime(item) {
-
-    const name =
-        (item.name || "").toLowerCase();
-
-    const overview =
-        (item.overview || "").toLowerCase();
-
-    // gênero animação
-    const hasAnimationGenre =
-        (item.genre_ids || []).includes(16);
-
-    // palavras comuns
-    const animeWords = [
-        "anime",
-        "animation",
-        "animated"
-    ];
-
-    const containsAnimeWord =
-        animeWords.some(word =>
-            name.includes(word) ||
-            overview.includes(word)
-        );
-
-    return (
-        hasAnimationGenre ||
-        containsAnimeWord
-    );
-}
 app.get("/api/doramas/popular", async (req, res) => {
     const page = normalizePage(req.query.page);
     const data = await tmdbRequest("/discover/tv", {
@@ -447,38 +416,14 @@ app.get("/api/doramas/popular", async (req, res) => {
         with_origin_country: "KR|JP|CN|TW",
         "vote_count.gte": 10
     });
-    if (data.results) {
-
-    data.results = data.results.filter(item => {
-
-        const langOk =
-            ["ko","ja","zh","th"]
-                .includes(item.original_language);
-
-        return langOk && !isAnime(item);
-    });
-}
-
-sendTmdbResult(res, data);
     sendTmdbResult(res, data);
-
 });
 
 app.get("/api/doramas/search", async (req, res) => {
     const query = (req.query.query || "").trim();
     if (!query) return res.json({ results: [] });
     const data = await tmdbRequest("/search/tv", { query, include_adult: false });
-    if (data.results) {
-
-    data.results = data.results.filter(item => {
-
-        const langOk =
-            ["ko","ja","zh","th"]
-                .includes(item.original_language);
-
-        return langOk && !isAnime(item);
-    });
-}
+    if (data.results) data.results = data.results.filter(item => ["ko","ja","zh","th"].includes(item.original_language));
     sendTmdbResult(res, data);
 });
 
@@ -505,113 +450,44 @@ app.get("/api/animes/search", async (req, res) => {
 
 // ==================== DESENHOS ====================
 app.get("/api/desenhos/series", async (req, res) => {
-
     const page = normalizePage(req.query.page);
     const country = req.query.country;
-
     const params = {
         page,
         sort_by: "popularity.desc",
         with_genres: "16",
-        without_original_language: "ja|ko|zh",
+        without_original_language: "ja",
         "vote_count.gte": 5
     };
-
-    if (country) {
-        params.with_origin_country = country;
-    }
-
+    if (country) params.with_origin_country = country;
     const data = await tmdbRequest("/discover/tv", params);
-
-    if (data.results) {
-
-        data.results = data.results.filter(item => {
-
-            const blockedCountries =
-                ["JP", "KR", "CN", "TW"];
-
-            const isAsianAnimation =
-                (item.origin_country || [])
-                    .some(country =>
-                        blockedCountries.includes(country)
-                    );
-
-            return !isAsianAnimation;
-        });
-    }
-
     sendTmdbResult(res, data);
 });
 
 app.get("/api/desenhos/filmes", async (req, res) => {
-
     const page = normalizePage(req.query.page);
     const country = req.query.country;
-
     const params = {
         page,
         sort_by: "popularity.desc",
         with_genres: "16",
-        without_original_language: "ja|ko|zh",
+        without_original_language: "ja",
         "vote_count.gte": 5
     };
-
-    if (country) {
-        params.with_origin_country = country;
-    }
-
+    if (country) params.region = country;
     const data = await tmdbRequest("/discover/movie", params);
-
     sendTmdbResult(res, data);
 });
 
 app.get("/api/desenhos/search", async (req, res) => {
-
-    const query =
-        (req.query.query || "").trim();
-
-    if (!query) {
-        return res.json({ results: [] });
-    }
-
-    const type =
-        req.query.type === "movie"
-            ? "movie"
-            : "tv";
-
-    const data = await tmdbRequest(
-        `/search/${type}`,
-        {
-            query,
-            include_adult: false
-        }
-    );
-
-    if (data.results) {
-
-        data.results = data.results.filter(item => {
-
-            const isAnimation =
-                item.genre_ids &&
-                item.genre_ids.includes(16);
-
-            const blockedLanguages =
-                ["ja", "ko", "zh"];
-
-            const isAnime =
-                blockedLanguages.includes(
-                    item.original_language
-                );
-
-            return (
-                isAnimation &&
-                !isAnime
-            );
-        });
-    }
-
+    const query = (req.query.query || "").trim();
+    if (!query) return res.json({ results: [] });
+    const type = req.query.type === "movie" ? "movie" : "tv";
+    const data = await tmdbRequest(`/search/${type}`, { query, include_adult: false });
+    if (data.results) data.results = data.results.filter(item => item.genre_ids && item.genre_ids.includes(16) && item.original_language !== "ja");
     sendTmdbResult(res, data);
 });
+
 // ==================== GÊNEROS ====================
 app.get("/api/genres/:type", async (req, res) => {
     const media = normalizeMedia(req.params.type);
@@ -638,7 +514,7 @@ app.get("/api/trailers/:type/:id", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
-// 
+// ==================== FAVORITOS / HISTÓRICO (usuário logado) ====================
 app.post("/api/favorites", authenticateToken, (req, res) => {
     const { tmdb_id, title, poster_path, media_type } = req.body;
     try {
@@ -710,21 +586,8 @@ app.get("/api/admin/users/search", authenticateAdmin, (req, res) => {
     `).all(term, term, term);
     res.json(users);
 });
-// ==================== FALLBACK SPA (limpa anúncios para premium) ====================
-app.use((req, res) => {
-    if (req.isPremium) {
-        const filePath = path.join(PUBLIC_DIR, 'homepage-1.html');
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) return res.status(404).send('Página não encontrada');
-            let cleaned = data
-                .replace(/<script[^>]*src="[^"]*(?:seenimplieddump|effectivecpmnetwork)[^"]*"[^>]*><\/script>/gi, '')
-                .replace(/<div id="container-ca14ad0de7291d1f27386bee56f15bac"><\/div>/gi, '');
-            res.send(cleaned);
-        });
-    } else {
-        res.sendFile(path.join(PUBLIC_DIR, 'homepage-1.html'));
-    }
-});
+// ==================== FALLBACK SPA (deve ser a última rota) ====================
+app.use((req, res) => res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html")));
 
 // ==================== INICIAR SERVIDOR ====================
 app.listen(PORT, () => {

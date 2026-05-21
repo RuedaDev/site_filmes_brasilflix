@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Painel Admin - BrasilFLIX</title>
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
     <style>
         body { background: #1a1a2e; color: white; font-family: Arial, sans-serif; margin: 0; }
         .admin-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
@@ -15,6 +17,9 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #444; }
         th { background: rgba(0,0,0,0.3); }
+        .search-box { margin: 20px 0; }
+        .search-box input { width: 300px; }
+        .btn-danger { background: #dc3545; }
     </style>
 </head>
 <body>
@@ -28,20 +33,32 @@
 
     <div id="dashboard-section" class="admin-container" style="display:none;">
         <h1>📊 Painel Administrativo</h1>
+        
+        <!-- Cards de métricas -->
         <div id="metrics-cards" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-        <button onclick="exportEmails()" style="margin: 20px 0;">📧 Exportar Emails (CSV)</button>
+        
+        <!-- Barra de pesquisa -->
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Pesquisar por nome, email ou telefone..." />
+            <button onclick="searchUsers()">🔍 Pesquisar</button>
+            <button onclick="loadAllUsers()">📋 Listar todos</button>
+        </div>
+        
+        <!-- Tabela de usuários -->
         <h3>👥 Usuários</h3>
         <table>
             <thead>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Telefone</th>  <!-- NOVA COLUNA -->
-                <th>Premium</th>
-                <th>Favoritos</th>
-                <th>Histórico</th>
-                <th>Cadastro</th>
-                <th>Ações</th>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Premium</th>
+                    <th>Favoritos</th>
+                    <th>Histórico</th>
+                    <th>Cadastro</th>
+                    <th>Ações</th>
+                </tr>
             </thead>
             <tbody id="users-table-body"></tbody>
         </table>
@@ -60,8 +77,10 @@
             await loadDashboard();
         }
 
-        async function apiAdmin(endpoint) {
-            const resp = await fetch(`/api/admin/${endpoint}?key=${encodeURIComponent(adminKey)}`);
+        async function apiAdmin(endpoint, method = 'GET') {
+            const separator = endpoint.includes('?') ? '&' : '?';
+            const url = `/api/admin/${endpoint}${separator}key=${encodeURIComponent(adminKey)}`;
+            const resp = await fetch(url, { method });
             if (!resp.ok) {
                 if (resp.status === 403) throw new Error('Chave inválida');
                 throw new Error('Erro ' + resp.status);
@@ -78,7 +97,6 @@
                 const cards = [
                     { label: 'Total de Usuários', value: metrics.totalUsers, color: '#667eea' },
                     { label: 'Premium 💎', value: metrics.premiumUsers, color: '#43e97b' },
-                    { label: 'Cadastros Hoje', value: metrics.todayUsers, color: '#f093fb' },
                     { label: 'Favoritos ❤️', value: metrics.totalFavorites, color: '#4facfe' },
                     { label: 'Histórico 🕐', value: metrics.totalHistory, color: '#ff9800' }
                 ];
@@ -90,34 +108,62 @@
                     </div>
                 `).join('');
 
-                const users = await apiAdmin('users');
-                let html = '';
-                users.forEach(u => {
-                    html += `
-                        <tr>
-                            <td>${u.id}</td>
-                            <td>${u.name}</td>
-                            <td>${u.email}</td>
-                            <td>${u.phone || '—'}</td>  <!-- NOVA CÉLULA -->
-                            <td>${u.is_premium ? '💎 Premium' : 'Grátis'}</td>
-                            <td>${u.favorites_count}</td>
-                            <td>${u.history_count}</td>
-                            <td>${new Date(u.created_at).toLocaleDateString()}</td>
-                            <td>
-                                <button onclick="togglePremium(${u.id}, ${u.is_premium})">
-                                    ${u.is_premium ? 'Remover Premium' : 'Dar Premium'}
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                document.getElementById('users-table-body').innerHTML = html || '<tr><td colspan="6">Nenhum usuário.</td></tr>';
-
+                await loadAllUsers();
             } catch (err) {
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('dashboard-section').style.display = 'none';
                 document.getElementById('auth-error').textContent = err.message;
             }
+        }
+
+        async function loadAllUsers() {
+            try {
+                const users = await apiAdmin('users');
+                renderUsers(users);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function searchUsers() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) {
+                await loadAllUsers();
+                return;
+            }
+            try {
+                const users = await apiAdmin(`users/search?q=${encodeURIComponent(query)}`);
+                renderUsers(users);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        function renderUsers(users) {
+            let html = '';
+            users.forEach(u => {
+                html += `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.name}</td>
+                        <td>${u.email}</td>
+                        <td>${u.phone || '—'}</td>
+                        <td>${u.is_premium ? '💎 Premium' : 'Grátis'}</td>
+                        <td>${u.favorites_count}</td>
+                        <td>${u.history_count}</td>
+                        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button onclick="togglePremium(${u.id}, ${u.is_premium})">
+                                ${u.is_premium ? 'Remover Premium' : 'Dar Premium'}
+                            </button>
+                            <button class="btn-danger" onclick="deleteUser(${u.id}, '${u.name}')">
+                                🗑️ Excluir
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('users-table-body').innerHTML = html || '<tr><td colspan="9">Nenhum usuário encontrado.</td></tr>';
         }
 
         async function togglePremium(userId, currentStatus) {
@@ -126,14 +172,22 @@
                 const resp = await fetch(`/api/admin/toggle-premium/${userId}?key=${encodeURIComponent(adminKey)}`, { method: 'POST' });
                 const data = await resp.json();
                 alert(data.message || 'Sucesso!');
-                loadDashboard();
+                await loadAllUsers();
             } catch (err) {
                 alert('Erro ao alterar premium.');
             }
         }
 
-        function exportEmails() {
-            window.open(`/api/admin/export-emails?key=${encodeURIComponent(adminKey)}`, '_blank');
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Tem certeza que deseja excluir o usuário "${userName}"? Esta ação não pode ser desfeita!`)) return;
+            try {
+                const resp = await fetch(`/api/admin/users/${userId}?key=${encodeURIComponent(adminKey)}`, { method: 'DELETE' });
+                const data = await resp.json();
+                alert(data.message || 'Usuário excluído!');
+                await loadAllUsers();
+            } catch (err) {
+                alert('Erro ao excluir usuário.');
+            }
         }
     </script>
 </body>

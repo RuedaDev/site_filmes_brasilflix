@@ -108,7 +108,7 @@
         `https://betterflix.click/api/player?id=${id}&type=tv&season=1&episode=1`
     ];
 
-    // Lista reduzida para premium (3 melhores, sem anúncios popup)
+    // Lista reduzida para premium (4 melhores, sem anúncios popup)
     const premiumMoviePlayers = [
         `https://superflixapi.best/filme/${id}#noLink#color:ff0000`,
         `https://vidsrc.me/embed/movie?tmdb=${id}`,

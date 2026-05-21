@@ -2,147 +2,125 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#090c10" />
-    <title>Meu Perfil | BrasilFLIX</title>
-    <meta name="description" content="Gerencie favoritos e histórico na sua conta BrasilFLIX." />
-    
-    <link rel="canonical" href="/perfil.html" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="BrasilFLIX" />
-    <meta property="og:locale" content="pt_BR" />
-    <meta property="og:title" content="Meu Perfil | BrasilFLIX" />
-    <meta property="og:description" content="Gerencie favoritos e histórico na sua conta BrasilFLIX." />
-    
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Meu Perfil | BrasilFLIX" />
-    <meta name="twitter:description" content="Gerencie favoritos e histórico na sua conta BrasilFLIX." />
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
-    <link href="./css/dot-icons.css" rel="stylesheet" />
-    <link href="./css/theme.css" rel="stylesheet" />
-    <link href="./css/brasilflix.css" rel="stylesheet" />
-    <link href="./css/extras.css" rel="stylesheet" />
-    <link href="./css/responsive.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Meu Perfil - BrasilFLIX</title>
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
+    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
+    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
+    <style>
+        body { background: #1a1a2e; color: white; font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { background: rgba(0,0,0,0.6); border-radius: 15px; padding: 20px; margin: 15px 0; }
+        .badge-premium { background: gold; color: #000; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+        .error-box { background: #ff4444; padding: 20px; border-radius: 10px; margin: 20px 0; display: none; }
+        button { background: #e91e63; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; }
+    </style>
 </head>
-<body class="profile-page">
-    <a class="bf-skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
-
-    <header role="banner" class="header header-horizontal brasilflix-header">
-        <div class="container">
-            <nav class="navbar">
-                <a class="navbar-brand" href="homepage-1.html">BrasilFLIX</a>
-                <div class="navbar-collapse">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item"><a class="nav-link" href="homepage-1.html">Início</a></li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
-    </header>
-
-    <main id="conteudo-principal" class="container mt-4">
-        <div class="profile-header">
+<body>
+    <div class="container">
+        <h1 style="text-align:center;">👤 Meu Perfil</h1>
+        <div class="error-box" id="error-box"></div>
+        
+        <div class="card">
             <h2 id="profile-name">Carregando...</h2>
             <p id="profile-email"></p>
-            <p>Membro desde <span id="profile-date"></span></p>
+            <p id="profile-date"></p>
+            <p id="premium-status"></p>
+            <p id="premium-expires"></p>
         </div>
-
-        <div class="row">
-            <div class="col-md-8">
-                <div class="profile-card">
-                    <h4>❤️ Favoritos (<span id="fav-count">0</span>)</h4>
-                    <div id="favorites-list" class="row"></div>
-                </div>
-                <div class="profile-card">
-                    <h4>🕐 Histórico (<span id="hist-count">0</span>)</h4>
-                    <div id="history-list" class="row"></div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="premium-card">
-                    <h3>⭐ Versão Premium</h3>
-                    <p>Assista sem anúncios!</p>
-                    <p><strong>R$ 9,90/mês</strong></p>
-                    <button class="premium-btn" onclick="alert('Funcionalidade em breve!')">Assinar Agora</button>
-                </div>
-            </div>
+        
+        <div class="card">
+            <h3>📊 Estatísticas</h3>
+            <p>❤️ Favoritos: <strong id="fav-count">0</strong></p>
+            <p>🕐 Visualizações: <strong id="hist-count">0</strong></p>
         </div>
-    </main>
+        
+        <div style="text-align:center;">
+            <button onclick="window.location.href='homepage-1.html'">🏠 Voltar ao site</button>
+        </div>
+    </div>
 
-    <script src="./js/site.js" defer></script>
-    <script src="./js/jquery-3.3.1.js"></script>
-    <script src="./bootstrap/js/bootstrap.js"></script>
-    <script src="./js/extras.js"></script>
     <script>
         async function loadProfile() {
             const token = localStorage.getItem('bf_token');
+            const errorBox = document.getElementById('error-box');
+            
             if (!token) {
-                window.location.href = 'login.html';
+                errorBox.style.display = 'block';
+                errorBox.innerHTML = '<p>❌ Você não está logado. <a href="login.html" style="color:white;">Faça login</a></p>';
                 return;
             }
+
             try {
-                const resp = await fetch('/api/user/stats', {
+                const resp = await fetch('/api/auth/profile', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const user = await resp.json();
-                if (resp.ok) {
-                    document.getElementById('profile-name').textContent = user.name;
-                    document.getElementById('profile-email').textContent = user.email;
-                    document.getElementById('profile-date').textContent = new Date(user.created_at).toLocaleDateString();
-                    document.getElementById('fav-count').textContent = user.favoritesCount;
-                    document.getElementById('hist-count').textContent = user.historyCount;
 
-                    // Carrega favoritos
-                    const favResp = await fetch('/api/favorites', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const favs = await favResp.json();
-                    const favContainer = document.getElementById('favorites-list');
-                    favContainer.innerHTML = favs.map(f => `
-                        <div class="col-6 col-md-4 mb-3">
-                            <div class="card bg-dark text-white" onclick="location.href='detalhes.html?id=${f.tmdb_id}&media=${f.media_type}'">
-                                <img src="https://image.tmdb.org/t/p/w300${f.poster_path || ''}" class="card-img-top" onerror="this.src='https://via.placeholder.com/300x450?text=Sem+Poster'">
-                                <div class="card-body"><p class="card-text small">${f.title}</p></div>
-                            </div>
-                        </div>
-                    `).join('');
+                console.log('🔍 Status da resposta:', resp.status);
+                const text = await resp.text();
+                console.log('🔍 Resposta bruta:', text);
 
-                    // Carrega histórico
-                    const histResp = await fetch('/api/history', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const hist = await histResp.json();
-                    const histContainer = document.getElementById('history-list');
-                    histContainer.innerHTML = hist.map(h => `
-                        <div class="col-6 col-md-4 mb-3">
-                            <div class="card bg-dark text-white" onclick="location.href='detalhes.html?id=${h.tmdb_id}&media=${h.media_type}'">
-                                <img src="https://image.tmdb.org/t/p/w300${h.poster_path || ''}" class="card-img-top" onerror="this.src='https://via.placeholder.com/300x450?text=Sem+Poster'">
-                                <div class="card-body"><p class="card-text small">${h.title}</p></div>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    alert('Sessão expirada. Faça login novamente.');
-                    localStorage.removeItem('bf_token');
-                    window.location.href = 'login.html';
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    errorBox.style.display = 'block';
+                    errorBox.innerHTML = `<p>❌ Resposta inválida do servidor (não é JSON).</p>
+                        <p>Status: ${resp.status}</p>
+                        <p>Resposta: ${text.substring(0, 200)}</p>`;
+                    return;
                 }
-            } catch (e) {
-                console.error(e);
-                alert('Erro ao carregar perfil.');
+
+                if (!resp.ok) {
+                    if (resp.status === 401 || resp.status === 403) {
+                        localStorage.removeItem('bf_token');
+                        localStorage.removeItem('bf_user');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(data.error || 'Erro ao carregar perfil');
+                }
+
+                // Preenche os dados
+                document.getElementById('profile-name').textContent = data.name;
+                document.getElementById('profile-email').textContent = data.email;
+                document.getElementById('profile-date').textContent = 
+                    'Membro desde ' + new Date(data.created_at).toLocaleDateString();
+                
+                // Status premium com tratamento de data segura
+                if (data.is_premium) {
+                    document.getElementById('premium-status').innerHTML = 
+                        '<span class="badge-premium">💎 Premium</span>';
+                    
+                    let expireText = '';
+                    if (data.premium_expires_at) {
+                        const expireDate = new Date(data.premium_expires_at);
+                        if (!isNaN(expireDate.getTime())) {
+                            expireText = `Expira em ${data.daysRemaining || 0} dia(s) (${expireDate.toLocaleDateString()})`;
+                        } else {
+                            expireText = `Expira em ${data.daysRemaining || 0} dia(s)`;
+                        }
+                    } else {
+                        expireText = 'Vitalício';
+                    }
+                    document.getElementById('premium-expires').textContent = expireText;
+                } else {
+                    document.getElementById('premium-status').textContent = 'Grátis';
+                    document.getElementById('premium-expires').textContent = '';
+                }
+
+                document.getElementById('fav-count').textContent = data.favoritesCount || 0;
+                document.getElementById('hist-count').textContent = data.historyCount || 0;
+
+            } catch (err) {
+                errorBox.style.display = 'block';
+                errorBox.innerHTML = `<p>❌ ${err.message}</p>`;
+                console.error('Erro:', err);
             }
         }
+
         loadProfile();
     </script>
-    <script async src="https://seenimplieddump.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script>
-
-    <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
-<div id="container-ca14ad0de7291d1f27386bee56f15bac"></div>
-    <script async src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
-
 </body>
 </html>

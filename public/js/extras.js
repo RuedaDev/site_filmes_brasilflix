@@ -2,6 +2,17 @@
 // FUNCIONALIDADES EXTRAS - BRASILFLIX (COM AUTH)
 // ==========================================
 (function() {
+    // Remove scripts de anúncio IMEDIATAMENTE se for premium
+    try {
+        const user = JSON.parse(localStorage.getItem('bf_user') || '{}');
+        if (user.is_premium === 1) {
+            document.querySelectorAll('script[src*="seenimplieddump"], script[src*="effectivecpmnetwork"]')
+                .forEach(el => el.remove());
+            const adDiv = document.getElementById('container-ca14ad0de7291d1f27386bee56f15bac');
+            if (adDiv) adDiv.remove();
+            console.log('🛡️ Anúncios removidos no frontend');
+        }
+    } catch(e) {}
     "use strict";
     console.log("🌟 Funcionalidades Extras carregadas");
 
@@ -474,6 +485,26 @@
         }
     }
 
+    // ---------- ATUALIZAR PERFIL DO SERVIDOR (novo) ----------
+    async function refreshUserProfile() {
+        const token = getToken();
+        if (!token) return;
+        try {
+            const resp = await fetch('/api/auth/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (resp.ok) {
+                const userData = await resp.json();
+                const currentUser = JSON.parse(localStorage.getItem('bf_user') || '{}');
+                const updatedUser = { ...currentUser, ...userData };
+                localStorage.setItem('bf_user', JSON.stringify(updatedUser));
+                console.log('🔄 Perfil atualizado do servidor');
+            }
+        } catch (e) {
+            console.warn('Não foi possível atualizar perfil do servidor');
+        }
+    }
+
     // ---------- INICIALIZAÇÃO ----------
     async function init() {
         Theme.init();
@@ -488,6 +519,7 @@
 
         if (isLoggedIn()) {
             await Favorites.syncWithServer();
+            await refreshUserProfile();   // 🔄 Atualiza dados do servidor (inclui premium)
         }
 
         const urlParams = new URLSearchParams(window.location.search);
