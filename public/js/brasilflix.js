@@ -78,6 +78,7 @@
                 `https://multiembed.mov/?video_id=${id}&tmdb=1`,
                 `https://embedplayapi.top/embed/${id}`,
                 `https://myembed.biz/filme/${id}`,
+                `https://superflixapi.best/filme/${id}`,
             ];
         }
 
@@ -91,7 +92,8 @@
             `https://autoembed.co/tv/tmdb/${id}/1/1`,
             `https://vidsrc.xyz/embed/tv/${id}/1/1`,
             `https://www.2embed.cc/embedtv/${id}&s=1&e=1`,
-            `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=1&e=1`
+            `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=1&e=1`,
+            `https://superflixapi.best/serie/${id}/1/1`
         ];
     }
 
