@@ -71,39 +71,55 @@
     // EMBEDS
     // ==========================================
 
-    function embedsFor(media, id) {
-        media = media === "tv" ? "tv" : "movie";
+    function embedsFor(media, id, details = null) {
+    media = media === "tv" ? "tv" : "movie";
 
-        if (media === "movie") {
-            return [
-                `https://vidsrc.me/embed/movie?tmdb=${id}`,
-                `https://vidlink.pro/movie/${id}`,
-                `https://embed.su/embed/movie/${id}`,
-                `https://vidsrc.icu/embed/movie/${id}`,
-                `https://autoembed.co/movie/tmdb/${id}`,
-                `https://vidsrc.xyz/embed/movie/${id}`,
-                `https://www.2embed.cc/embed/${id}`,
-                `https://multiembed.mov/?video_id=${id}&tmdb=1`,
-                `https://embedplayapi.top/embed/${id}`,
-                `https://myembed.biz/filme/${id}`,
-                `https://superflixapi.best/filme/${id}`,
-            ];
-        }
+    // Obtém o IMDb ID, se disponível
+    const imdbId = details?.external_ids?.imdb_id || null;
 
-        return [
-            `https://vidsrc.me/embed/tv?tmdb=${id}&season=1&episode=1`,
-            `https://myembed.biz/serie/${id}/1/1`,
-            `https://embedplayapi.top/embed/${id}/1/1`,
-            `https://vidlink.pro/tv/${id}/1/1`,
-            `https://embed.su/embed/tv/${id}/1/1`,
-            `https://vidsrc.icu/embed/tv/${id}/1/1`,
-            `https://autoembed.co/tv/tmdb/${id}/1/1`,
-            `https://vidsrc.xyz/embed/tv/${id}/1/1`,
-            `https://www.2embed.cc/embedtv/${id}&s=1&e=1`,
-            `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=1&e=1`,
-            `https://superflixapi.best/serie/${id}/1/1`
+    if (media === "movie") {
+        const urls = [
+            `https://vidsrc.me/embed/movie?tmdb=${id}`,
+            `https://vidlink.pro/movie/${id}`,
+           // `https://embed.su/embed/movie/${id}`,
+           // `https://vidsrc.icu/embed/movie/${id}`,
+            `https://autoembed.co/movie/tmdb/${id}`,
+            `https://vidsrc.xyz/embed/movie/${id}`,
+            `https://www.2embed.cc/embed/${id}`,
+            `https://betterflix.click/api/player?id=${id}&type=movie`,
+            `https://embedplayapi.top/embed/${id}`,
+            `https://myembed.biz/filme/${id}`,
+            `https://superflixapi.best/filme/${id}#noLink#color:ff0000`,
         ];
+
+        // Adiciona SuperFlixAPI com IMDb ID (preferencial) ou TMDB ID
+        const superflixUrl = imdbId 
+            ? `https://superflixapi.best/filme/${imdbId}#noLink#color:ff0000`
+            : `https://superflixapi.best/filme/${id}#noLink#color:ff0000`;
+        urls.unshift(superflixUrl); // coloca como primeira opção
+
+        return urls;
     }
+
+    // Para séries/doramas/animes
+    const urls = [
+        `https://vidsrc.me/embed/tv?tmdb=${id}&season=1&episode=1`,
+        `https://vidlink.pro/tv/${id}/1/1`,
+       // `https://embed.su/embed/tv/${id}/1/1`,
+       // `https://vidsrc.icu/embed/tv/${id}/1/1`,
+        `https://autoembed.co/tv/tmdb/${id}/1/1`,
+       // `https://vidsrc.xyz/embed/tv/${id}/1/1`,
+        `https://myembed.biz/serie/${id}/1/1`,
+        `https://embedplayapi.top/embed/${id}/1/1`,
+        `https://betterflix.click/api/player?id=${id}&type=tv&season=1&episode=1`,
+        `https://superflixapi.best/serie/${id}/1/1#noEpList#noLink`,
+    ];
+
+    const superflixUrl = `https://superflixapi.best/serie/${id}/1/1#noEpList#noLink`;
+    urls.unshift(superflixUrl);
+
+    return urls;
+}
 
     // ==========================================
     // INIT
@@ -459,7 +475,7 @@ function renderPlayer(media, id, seasons, totalSeasons) {
                             src="${embedUrls[0]}" 
                             width="100%"
                             frameborder="0" allowfullscreen
-                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
+                            >
                         </iframe>
                     </div>
                 </div>
