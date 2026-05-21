@@ -76,9 +76,9 @@
                     },
                     body: JSON.stringify({
                         tmdb_id: item.id,
-                        title: item.title,
-                        poster_path: item.poster_path || '',
-                        media_type: item.media || 'movie'
+                        title: item.title || item.name,
+                        poster_path: item.poster_path || item.poster || '',
+                        media_type: item.media_type || item.media || 'movie'
                     })
                 });
             } catch (error) {}
@@ -125,9 +125,9 @@
                     },
                     body: JSON.stringify({
                         tmdb_id: item.id,
-                        title: item.title,
-                        poster_path: item.poster_path || '',
-                        media_type: item.media || 'movie'
+                        title: item.title || item.name,
+                        poster_path: item.poster_path || item.poster || '',
+                        media_type: item.media_type || item.media || 'movie'
                     })
                 });
             } catch (error) {}
@@ -350,24 +350,100 @@
         document.body.appendChild(modal);
     }
 
-    // ---------- OBSERVAR CARDS PARA BOTÃO FAVORITO ----------
+    // ---------- FAVORITO NOS CARDS ----------
+    function addFavButtonToCard(card) {
+        if (!card || card.dataset.favReady === '1') return;
+
+        const id = parseInt(card.dataset.bfId || card.getAttribute('data-bf-id'), 10);
+        let media = card.dataset.bfMedia || card.getAttribute('data-bf-media');
+        let title = card.dataset.bfTitle || card.querySelector('.bf-card-body h3')?.textContent?.trim();
+
+        if (!id) {
+            const link = card.querySelector('a[href*="detalhes.html"]');
+            if (!link) return;
+            try {
+                const url = new URL(link.getAttribute('href'), window.location.href);
+                const parsedId = parseInt(url.searchParams.get('id'), 10);
+                if (!parsedId) return;
+                media = url.searchParams.get('media') || 'movie';
+                title = title || 'Título';
+                card.dataset.bfId = String(parsedId);
+                card.dataset.bfMedia = media;
+            } catch (e) {
+                return;
+            }
+        }
+
+        const tmdbId = parseInt(card.dataset.bfId, 10);
+        media = card.dataset.bfMedia || 'movie';
+        title = title || 'Título';
+        const posterEl = card.querySelector('.bf-card-poster');
+        if (!posterEl || posterEl.querySelector('.bf-card-fav-btn')) return;
+
+        card.dataset.favReady = '1';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bf-card-fav-btn';
+        btn.setAttribute('aria-label', 'Adicionar aos favoritos');
+        const sync = () => {
+            const on = Favorites.isFavorited(tmdbId);
+            btn.textContent = on ? '❤️' : '🤍';
+            btn.setAttribute('aria-label', on ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
+        };
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (Favorites.isFavorited(tmdbId)) {
+                Favorites.remove(tmdbId);
+            } else {
+                Favorites.add({
+                    id: tmdbId,
+                    title,
+                    name: title,
+                    poster_path: '',
+                    media_type: media,
+                    media
+                });
+            }
+            sync();
+        });
+        sync();
+        posterEl.appendChild(btn);
+    }
+
     function observeCards() {
-    // Em vez de observar todo o DOM, apenas adiciona os botões quando novos cards são inseridos via funções já existentes.
-    // Mas para não quebrar, vamos usar um observer limitado à #catalogo ou similar.
-    const target = document.getElementById('catalogo') || document.body;
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach(m => {
-            m.addedNodes.forEach(node => {
-                if (node.nodeType === 1) {
-                    if (node.matches && node.matches('.bf-card')) addFavButtonToCard(node);
-                    if (node.querySelectorAll) node.querySelectorAll('.bf-card').forEach(addFavButtonToCard);
-                }
+        const containerIds = [
+            'bf-catalog',
+            'bf-home-movies',
+            'bf-home-series',
+            'bf-home-animes',
+            'bf-home-doramas',
+            'bf-related'
+        ];
+        const targets = containerIds
+            .map(id => document.getElementById(id))
+            .filter(Boolean);
+
+        const scan = (root) => {
+            if (!root) return;
+            if (root.matches && root.matches('.bf-card')) addFavButtonToCard(root);
+            root.querySelectorAll('.bf-card').forEach(addFavButtonToCard);
+        };
+
+        targets.forEach(scan);
+
+        if (!targets.length) return;
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(m => {
+                m.addedNodes.forEach(node => {
+                    if (node.nodeType !== 1) return;
+                    scan(node);
+                });
             });
         });
-    });
-    observer.observe(target, { childList: true, subtree: true });
-    document.querySelectorAll('.bf-card').forEach(addFavButtonToCard);
-}
+        targets.forEach(el => observer.observe(el, { childList: true, subtree: true }));
+    }
 
     // ---------- INICIALIZAÇÃO ----------
     async function init() {

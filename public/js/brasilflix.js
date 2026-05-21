@@ -24,7 +24,7 @@
     const BACKDROP_BASE = "https://image.tmdb.org/t/p/w780";
     const FALLBACK_POSTER = "https://via.placeholder.com/500x750?text=BrasilFLIX";
     const MAX_AUTO_PAGES = 50;
-    const INITIAL_HOME_PAGES = 8;
+    const INITIAL_HOME_PAGES = 1;
 
     // ==========================================
     // ESTADO
@@ -37,7 +37,11 @@
         loading: false,
         reachedEnd: false,
         searchQuery: "",
-        searchTimer: null
+        searchTimer: null,
+        animeGenre: "all",
+        animeSeason: "",
+        desenhosType: "series",
+        desenhosCountry: ""
     };
 
     // Flag para evitar renderização dupla
@@ -47,7 +51,11 @@
     // ELEMENTOS (SEGUROS)
     // ==========================================
 
-    const catalogNode = $("bf-catalog");
+    const catalogNode =
+        $("bf-catalog") ||
+        $("bf-dorama-catalog") ||
+        $("bf-anime-catalog") ||
+        $("catalog-grid");
     const homeMoviesNode = $("bf-home-movies");
     const homeSeriesNode = $("bf-home-series");
     const homeAnimesNode = $("bf-home-animes");
@@ -106,6 +114,7 @@
 
         setupSearch();
         setupInfiniteScroll();
+        setupPageUi();
 
         if (state.pageType === "detalhes") {
             loadDetailsPage();
@@ -133,8 +142,9 @@
             state.searchQuery = titleInput.value.trim();
             if (state.searchQuery) {
                 if (state.pageType === "home") {
-                    searchHome(); // nova função
+                    searchHome();
                 } else {
+                    if (state.pageType === "animes") updateAnimeSectionTitle();
                     searchCatalog();
                 }
             } else {
@@ -156,6 +166,7 @@
             if (state.pageType === "home") {
                 searchHome();
             } else {
+                if (state.pageType === "animes") updateAnimeSectionTitle();
                 searchCatalog();
             }
         });
@@ -202,9 +213,11 @@
     // ==========================================
 
     function setupInfiniteScroll() {
+        if (!catalogNode) return;
+
         window.addEventListener("scroll", function () {
-            if (state.loading || state.reachedEnd || state.searchQuery || 
-                state.pageType === "home" || state.pageType === "detalhes") return;
+            if (state.loading || state.reachedEnd || state.searchQuery ||
+                state.pageType === "home" || state.pageType === "detalhes" || state.pageType === "categorias") return;
 
             const nearBottom = window.innerHeight + window.scrollY >= 
                 document.body.offsetHeight - 600;
@@ -265,10 +278,11 @@
         state.currentMedia = mediaForPage();
         showMessage("Carregando...");
 
-        const endpoint = state.pageType === "categorias" ? "/api/trending" : "/api/popular";
-        const url = `${endpoint}?type=${state.currentMedia}&page=${state.currentPage}`;
+        const url = catalogListUrl();
         const data = await apiGet(url);
-        const results = normalizeResults(data.results || [], state.currentMedia);
+        const results = filterCatalogResults(
+            normalizeResults(data.results || [], state.currentMedia)
+        );
 
         appendCards(catalogNode, results, state.currentMedia);
         state.reachedEnd = state.currentPage >= Math.min(data.total_pages || MAX_AUTO_PAGES, MAX_AUTO_PAGES);
@@ -284,9 +298,22 @@
     async function searchCatalog() {
         const media = mediaForPage();
         const query = encodeURIComponent(state.searchQuery);
-        const year = yearInput && yearInput.value ? `&year=${encodeURIComponent(yearInput.value)}` : "";
-        const data = await apiGet(`/api/search?type=${media}&query=${query}${year}`);
-        const results = normalizeResults(data.results || [], media);
+        let data;
+
+        if (state.pageType === "doramas") {
+            data = await apiGet(`/api/doramas/search?query=${query}`);
+        } else if (state.pageType === "animes") {
+            data = await apiGet(`/api/animes/search?query=${query}`);
+        } else if (state.pageType === "desenhos") {
+            const type = state.desenhosType === "movies" ? "movie" : "tv";
+            data = await apiGet(`/api/desenhos/search?query=${query}&type=${type}`);
+        } else {
+            const year = yearInput && yearInput.value ? `&year=${encodeURIComponent(yearInput.value)}` : "";
+            data = await apiGet(`/api/search?type=${media}&query=${query}${year}`);
+        }
+
+        const results = filterCatalogResults(normalizeResults(data.results || [], media));
+        state.reachedEnd = true;
         renderCards(catalogNode, results, media);
         showMessage(`${results.length} resultado(s)`);
     }
@@ -323,9 +350,36 @@
         detailsRendered = true;
         renderDetails(details, media);
         renderRelated(details, media);
-        
-        // Inicializa os players após um pequeno delay
-        setTimeout(initPlayers, 300);
+
+        if (window.BFUpdatePageMeta) {
+            const displayTitle = details.title || details.name || "Título";
+            const overview = details.overview || "Assista online no BrasilFLIX.";
+            const poster = posterUrl(details.poster_path);
+            window.BFUpdatePageMeta({
+                title: `${displayTitle} — Assistir Online | BrasilFLIX`,
+                description: overview.length > 160 ? overview.slice(0, 157) + "..." : overview,
+                image: poster
+            });
+            var canonical = document.querySelector('link[rel="canonical"]');
+            if (canonical) {
+                canonical.setAttribute("href", `/detalhes.html?id=${id}&media=${media}`);
+            }
+
+            var oldLd = document.getElementById("bf-structured-data");
+            if (oldLd) oldLd.remove();
+            var ld = document.createElement("script");
+            ld.id = "bf-structured-data";
+            ld.type = "application/ld+json";
+            ld.textContent = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": media === "movie" ? "Movie" : "TVSeries",
+                "name": displayTitle,
+                "description": overview,
+                "image": poster,
+                "url": `${window.location.origin}/detalhes.html?id=${id}&media=${media}`
+            });
+            document.head.appendChild(ld);
+        }
     }
 
     // ==========================================
@@ -372,6 +426,7 @@
         // Adiciona o player
         const playerHTML = renderPlayer(media, item.id, seasons, totalSeasons);
         detailNode.insertAdjacentHTML('afterend', playerHTML);
+        setTimeout(setupPlayerControls, 0);
     }
 
     // ==========================================
@@ -402,9 +457,9 @@ function renderPlayer(media, id, seasons, totalSeasons) {
                     <div class="bf-player-shell">
                         <iframe id="bf-detail-player" 
                             src="${embedUrls[0]}" 
-                            width="100%" height="450px" 
+                            width="100%"
                             frameborder="0" allowfullscreen
-                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups>
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
                         </iframe>
                     </div>
                 </div>
@@ -499,7 +554,7 @@ function renderPlayer(media, id, seasons, totalSeasons) {
                 <div class="bf-player-shell">
                     <iframe id="bf-detail-player" 
                         src="${firstPlayerUrl}" 
-                        width="100%" height="450px" 
+                        width="100%"
                         frameborder="0" allowfullscreen
                         sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
                     </iframe>
@@ -518,11 +573,13 @@ function setupPlayerControls() {
     const episodeSelect = document.getElementById('episode-select');
     
     if (!seasonSelect || !episodeSelect) {
-        // Se não encontrou, é um filme (não precisa de controles)
         return;
     }
 
-    console.log('🎮 Configurando controles de temporada/episódio');
+    if (seasonSelect.dataset.bfControlsReady === '1') {
+        return;
+    }
+    seasonSelect.dataset.bfControlsReady = '1';
 
     // Criar mapa: temporada -> número de episódios
     const seasonEpisodes = {};
@@ -618,165 +675,141 @@ document.addEventListener("click", function (event) {
     }
 });
 
-// ==========================================
-// SOBRESCREVE RENDER DETAILS (ADICIONA SETUP)
-// ==========================================
-
-const originalRenderDetails = renderDetails;
-renderDetails = function(item, media) {
-    originalRenderDetails(item, media);
-    // Aguarda o DOM atualizar e configura os controles
-    setTimeout(setupPlayerControls, 200);
-};
-    // ==========================================
-    // INICIALIZAR PLAYERS
-    // ==========================================
-
-    function initPlayers() {
-        const playerButtons = document.getElementById('player-buttons');
-        const iframe = document.getElementById('bf-detail-player');
-        const seasonSelect = document.getElementById('season-select');
-        const episodeSelect = document.getElementById('episode-select');
-
-        if (!playerButtons || !iframe) {
-            console.log('⏳ Aguardando player...');
-            setTimeout(initPlayers, 500);
-            return;
-        }
-
-        // Se já tem botões, não recria
-        if (playerButtons.children.length > 0) {
-            console.log('✅ Players já inicializados');
-            return;
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
-        const media = params.get('media') || 'movie';
-        const season = seasonSelect?.value || 1;
-        const episode = episodeSelect?.value || 1;
-
-        console.log('🎬 Inicializando players:', { media, id, season, episode });
-
-        const embedUrls = embedsFor(media, id);
-
-        // Renderiza botões
-        playerButtons.innerHTML = embedUrls.map((url, i) => {
-            let finalUrl = url;
-            if (media === 'tv') {
-                finalUrl = url
-                    .replace(/season=\d+/g, `season=${season}`)
-                    .replace(/episode=\d+/g, `episode=${episode}`)
-                    .replace(/&s=\d+/g, `&s=${season}`)
-                    .replace(/&e=\d+/g, `&e=${episode}`)
-                    .replace(/\/\d+\/\d+$/g, `/${season}/${episode}`);
-            }
-            return `<button class="bf-filter ${i === 0 ? 'active' : ''}" data-embed-url="${finalUrl}">Player ${i + 1}</button>`;
-        }).join('');
-
-        // Define primeiro player
-        if (embedUrls.length > 0) {
-            let firstUrl = embedUrls[0];
-            if (media === 'tv') {
-                firstUrl = firstUrl
-                    .replace(/season=\d+/g, `season=${season}`)
-                    .replace(/episode=\d+/g, `episode=${episode}`)
-                    .replace(/&s=\d+/g, `&s=${season}`)
-                    .replace(/&e=\d+/g, `&e=${episode}`)
-                    .replace(/\/\d+\/\d+$/g, `/${season}/${episode}`);
-            }
-            iframe.src = firstUrl;
-            console.log('🎬 Player inicial:', firstUrl);
-        }
-
-        // Configura eventos de temporada/episódio
-        setupSeasonControls(media, id);
-        console.log('✅ Players inicializados');
-    }
-
-    // ==========================================
-    // CONTROLES DE TEMPORADA/EPISÓDIO
-    // ==========================================
-
-    function setupSeasonControls(media, id) {
-        const seasonSelect = document.getElementById('season-select');
-        const episodeSelect = document.getElementById('episode-select');
-
-        if (!seasonSelect || !episodeSelect) return;
-
-        // Mapeia temporadas -> episódios
-        const seasonEpisodes = {};
-        seasonSelect.querySelectorAll('option').forEach(opt => {
-            seasonEpisodes[opt.value] = parseInt(opt.getAttribute('data-episodes')) || 12;
-        });
-
-        seasonSelect.addEventListener('change', function() {
-            const selSeason = this.value;
-            const episodes = seasonEpisodes[selSeason] || 12;
-
-            episodeSelect.innerHTML = Array.from({ length: episodes }, (_, i) =>
-                `<option value="${i + 1}">Episódio ${i + 1}</option>`
-            ).join('');
-
-            updatePlayerUrls(media, id);
-        });
-
-        episodeSelect.addEventListener('change', function() {
-            updatePlayerUrls(media, id);
-        });
-    }
-
-    function updatePlayerUrls(media, id) {
-        const season = document.getElementById('season-select')?.value || 1;
-        const episode = document.getElementById('episode-select')?.value || 1;
-        const iframe = document.getElementById('bf-detail-player');
-        const buttons = document.querySelectorAll('#player-buttons .bf-filter');
-
-        if (!iframe || !buttons.length) return;
-
-        const embedUrls = embedsFor(media, id);
-
-        buttons.forEach((btn, i) => {
-            let url = embedUrls[i] || embedUrls[0];
-            url = url.replace(/season=\d+/g, `season=${season}`)
-                     .replace(/episode=\d+/g, `episode=${episode}`)
-                     .replace(/&s=\d+/g, `&s=${season}`)
-                     .replace(/&e=\d+/g, `&e=${episode}`)
-                     .replace(/\/\d+\/\d+$/g, `/${season}/${episode}`);
-            btn.setAttribute('data-embed-url', url);
-        });
-
-        const activeBtn = document.querySelector('#player-buttons .bf-filter.active');
-        if (activeBtn) {
-            iframe.src = activeBtn.getAttribute('data-embed-url');
-        }
-    }
-
-    // ==========================================
-    // PLAYER SWITCH
-    // ==========================================
-
-    document.addEventListener("click", function (event) {
-        const option = event.target.closest("[data-embed-url]");
-        if (!option) return;
-
-        const iframe = document.getElementById("bf-detail-player");
-        if (!iframe) return;
-
-        document.querySelectorAll("#player-buttons .bf-filter").forEach(b => b.classList.remove("active"));
-        option.classList.add("active");
-
-        const newUrl = option.getAttribute("data-embed-url");
-        console.log("🔄 Trocando player:", newUrl);
-        iframe.src = newUrl;
-    });
-
     // ==========================================
     // HELPERS
     // ==========================================
 
     function mediaForPage() {
+        if (state.pageType === "desenhos") {
+            return state.desenhosType === "movies" ? "movie" : "tv";
+        }
         return ["series", "animes", "doramas"].includes(state.pageType) ? "tv" : "movie";
+    }
+
+    function catalogListUrl() {
+        const page = state.currentPage;
+
+        if (state.pageType === "doramas") {
+            return `/api/doramas/popular?page=${page}`;
+        }
+
+        if (state.pageType === "animes") {
+            if (state.animeGenre && state.animeGenre !== "all") {
+                const params = new URLSearchParams({
+                    type: "tv",
+                    page: String(page),
+                    sort_by: "popularity.desc",
+                    genre: `16,${state.animeGenre}`,
+                    language: "ja",
+                    "vote_count.gte": "5"
+                });
+                return `/api/discover?${params.toString()}`;
+            }
+            return `/api/animes/popular?page=${page}`;
+        }
+
+        if (state.pageType === "desenhos") {
+            const kind = state.desenhosType === "movies" ? "filmes" : "series";
+            let url = `/api/desenhos/${kind}?page=${page}`;
+            if (state.desenhosCountry) {
+                url += `&country=${encodeURIComponent(state.desenhosCountry)}`;
+            }
+            return url;
+        }
+
+        const endpoint = state.pageType === "categorias" ? "/api/trending" : "/api/popular";
+        return `${endpoint}?type=${mediaForPage()}&page=${page}`;
+    }
+
+    function filterCatalogResults(results) {
+        if (state.pageType === "animes" && state.animeSeason) {
+            const months = {
+                winter: [12, 1, 2],
+                spring: [3, 4, 5],
+                summer: [6, 7, 8],
+                fall: [9, 10, 11]
+            };
+            const allowed = months[state.animeSeason] || [];
+            return results.filter(item => {
+                const date = item.first_air_date || item.release_date || "";
+                if (!date) return false;
+                const month = parseInt(date.split("-")[1], 10);
+                return allowed.includes(month);
+            });
+        }
+        return results;
+    }
+
+    function setupPageUi() {
+        if (state.pageType === "desenhos") {
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+                    state.desenhosType = this.dataset.type === "movies" ? "movies" : "series";
+                    state.searchQuery = "";
+                    if (titleInput) titleInput.value = "";
+                    loadCatalogPage(true);
+                });
+            });
+        }
+
+        if (state.pageType === "animes") {
+            document.querySelectorAll(".genre-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    document.querySelectorAll(".genre-btn").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+                    state.animeGenre = this.dataset.genre || "all";
+                    state.animeSeason = "";
+                    state.searchQuery = "";
+                    document.querySelectorAll(".season-badge").forEach(b => { b.style.opacity = "0.6"; });
+                    if (titleInput) titleInput.value = "";
+                    updateAnimeSectionTitle();
+                    loadCatalogPage(true);
+                });
+            });
+
+            document.querySelectorAll(".season-badge").forEach(badge => {
+                badge.addEventListener("click", function () {
+                    document.querySelectorAll(".season-badge").forEach(b => { b.style.opacity = "0.6"; });
+                    this.style.opacity = "1";
+                    state.animeSeason = this.dataset.season || "";
+                    state.animeGenre = "all";
+                    document.querySelectorAll(".genre-btn").forEach(b => b.classList.remove("active"));
+                    const allBtn = document.querySelector('.genre-btn[data-genre="all"]');
+                    if (allBtn) allBtn.classList.add("active");
+                    state.searchQuery = "";
+                    if (titleInput) titleInput.value = "";
+                    updateAnimeSectionTitle();
+                    loadCatalogPage(true);
+                });
+            });
+        }
+    }
+
+    function updateAnimeSectionTitle() {
+        const titleNode = $("section-title");
+        if (!titleNode) return;
+        const seasonNames = {
+            winter: "Inverno",
+            spring: "Primavera",
+            summer: "Verão",
+            fall: "Outono"
+        };
+        if (state.animeSeason) {
+            titleNode.textContent = `📺 Animes — Temporada de ${seasonNames[state.animeSeason] || state.animeSeason}`;
+            return;
+        }
+        if (state.animeGenre && state.animeGenre !== "all") {
+            const active = document.querySelector(".genre-btn.active");
+            titleNode.textContent = active ? `📺 ${active.textContent.trim()}` : "📺 Animes";
+            return;
+        }
+        if (state.searchQuery) {
+            titleNode.textContent = `🔍 Resultados para: "${state.searchQuery}"`;
+            return;
+        }
+        titleNode.textContent = "📺 Animes Populares";
     }
 
     function normalizeMedia(m) {
@@ -840,7 +873,7 @@ renderDetails = function(item, media) {
         const title = item.title || item.name || "Título";
         const poster = posterUrl(item.poster_path);
         return `
-            <article class="bf-card">
+            <article class="bf-card" data-bf-id="${item.id}" data-bf-media="${media}">
                 <div class="bf-card-poster" style="background-image:url('${poster}')">
                     <a class="bf-card-info-link" href="detalhes.html?id=${item.id}&media=${media}"></a>
                 </div>

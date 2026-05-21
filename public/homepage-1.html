@@ -1,25 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>BrasilFLIX - Filmes online gratis</title>
-    <meta name="description" content="Assista filmes, series, doramas e animes online pelo catalogo BrasilFLIX." />
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-    
-    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700&display=swap" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" type="text/css" />
-    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
-    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
-    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
-    
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#090c10" />
+    <title>BrasilFLIX — Filmes, Séries, Animes e Doramas Online Grátis</title>
+    <meta name="description" content="BrasilFLIX: assista filmes, séries, animes e doramas online grátis. Busca rápida, catálogo por categoria e página de detalhes com sinopse e players." />
+    <meta name="keywords" content="filmes online, séries online, animes, doramas, streaming grátis, BrasilFLIX" />
+    <link rel="canonical" href="/homepage-1.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BrasilFLIX" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="BrasilFLIX — Filmes, Séries, Animes e Doramas Online Grátis" />
+    <meta property="og:description" content="Assista filmes, séries, animes e doramas online grátis no BrasilFLIX." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BrasilFLIX" />
+    <meta name="twitter:description" content="Filmes, séries, animes e doramas online grátis." />
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
+    <link href="./css/dot-icons.css" rel="stylesheet" />
+    <link href="./css/theme.css" rel="stylesheet" />
+    <link href="./css/brasilflix.css" rel="stylesheet" />
+    <link href="./css/extras.css" rel="stylesheet" />
+    <link href="./css/responsive.css" rel="stylesheet" />
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebSite","name":"BrasilFLIX","url":"/homepage-1.html","description":"Plataforma para assistir filmes, séries, animes e doramas online.","potentialAction":{"@type":"SearchAction","target":"/homepage-1.html?busca={search_term_string}","query-input":"required name=search_term_string"}}
+    </script>
 </head>
 <body class="body brasilflix-body" data-bf-page="home">
-    <header class="header header-horizontal header-view-pannel brasilflix-header">
+    <a class="bf-skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
+    <header class="header header-horizontal header-view-pannel brasilflix-header" role="banner">
         <div class="container">
             <nav class="navbar">
                 <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
@@ -30,7 +44,7 @@
                         <span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span>
                     </span>
                 </a>
-                <button class="navbar-toggler" type="button" aria-label="Abrir menu">
+                <button class="navbar-toggler" type="button" aria-label="Abrir ou fechar menu" aria-expanded="false">
                     <span class="th-dots-active-close th-dots th-bars">
                         <span></span><span></span><span></span>
                     </span>
@@ -53,7 +67,7 @@
         </div>
     </header>
 
-    <main>
+    <main id="conteudo-principal">
         <section id="inicio" class="bf-hero section-text-white">
             <div class="bf-hero-media" aria-hidden="true"></div>
             <div class="bf-hero-shade" aria-hidden="true"></div>
@@ -61,17 +75,12 @@
                 <div class="bf-kicker text-uppercase">Cinema online</div>
                 <h1>BrasilFLIX</h1>
                 <p class="bf-hero-copy">Uma plataforma de entretenimento digital que centraliza catálogo, detalhes e reprodução em um único ambiente, com navegação rápida e intuitiva.</p>
-                <form id="bf-title-form" class="bf-hero-search" autocomplete="off">
-                    <input id="bf-title-input" class="form-control" type="text" placeholder="Buscar filme ou serie" />
-                    <input id="bf-year-input" class="form-control" type="number" placeholder="Ano" min="1900" max="2100" />
-                    <button class="btn btn-theme" type="submit"><i class="fas fa-search"></i>&nbsp;&nbsp;Buscar</button>
+                <form id="bf-title-form" class="bf-hero-search" autocomplete="off" role="search" aria-label="Buscar no catálogo">
+                    <input id="bf-title-input" class="form-control" type="search" name="q" placeholder="Buscar filme ou série" aria-label="Título" />
+                    <input id="bf-year-input" class="form-control" type="number" name="year" placeholder="Ano" min="1900" max="2100" aria-label="Ano" />
+                    <button class="btn btn-theme" type="submit"><i class="fas fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Buscar</button>
                 </form>
-                <form id="bf-title-form" class="bf-hero-search" autocomplete="off">
-                    <!-- NOVO: container de resultados da busca na home -->
-                <div id="bf-search-results" class="container mt-4" style="display:none;"></div>
-                </form>
-                <!-- NOVO: container de resultados da busca na home -->
-                <div id="bf-search-results" class="container mt-4" style="display:none;"></div>
+                <div id="bf-search-results" class="container mt-4" style="display:none;" aria-live="polite"></div>
                 <p id="bf-message" class="bf-message bf-hero-message" role="status">Digite um titulo ou explore as secoes abaixo.</p>
                 <div class="bf-hero-stats">
                     <span><strong>Filmes</strong></span>
@@ -119,7 +128,7 @@
 
     <a class="scroll-top disabled" href="#"><i class="fas fa-angle-up" aria-hidden="true"></i></a>
 
-    <footer class="section-text-white footer footer-links bg-darken bf-footer">
+    <footer class="section-text-white footer footer-links bg-darken bf-footer" role="contentinfo">
         <div class="footer-body container">
             <div class="row">
                 <div class="col-md-6">
@@ -156,11 +165,11 @@
         </div>
     </footer>
 
-    <script src="./js/jquery-3.3.1.js"defer></script>
-    <script src="./bootstrap/js/bootstrap.js"defer></script>
-    <script src="./waypoints/jquery.waypoints.min.js"defer></script>
-    <script src="./js/brasilflix.js"defer></script>
-    <script src="./js/extras.js"defer></script>
+    <script src="./js/jquery-3.3.1.js" defer></script>
+    <script src="./bootstrap/js/bootstrap.js" defer></script>
+    <script src="./js/site.js" defer></script>
+    <script src="./js/brasilflix.js" defer></script>
+    <script src="./js/extras.js" defer></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             console.log("🔄 Home carregada");

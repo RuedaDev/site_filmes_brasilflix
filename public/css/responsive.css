@@ -1,0 +1,492 @@
+/* ==========================================
+   BrasilFLIX — Responsividade + base visual
+   ========================================== */
+
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
+.brasilflix-body {
+    overflow-x: hidden;
+}
+
+img,
+video,
+iframe,
+svg {
+    max-width: 100%;
+}
+
+.bf-skip-link {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    z-index: 10001;
+    padding: 10px 16px;
+    background: #f5c518;
+    color: #111;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.bf-skip-link:focus {
+    left: 12px;
+    top: 12px;
+}
+
+/* Tipografia fluida */
+.bf-hero h1,
+.bf-page-hero h1,
+.bf-detail-copy h1,
+.titulo-dorama {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    line-height: 1.05;
+    word-wrap: break-word;
+}
+
+.bf-hero-copy,
+.bf-page-hero p,
+.subtitulo-dorama {
+    font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+    line-height: 1.6;
+}
+
+.section-title,
+.bf-section-head .section-title {
+    font-size: clamp(1.35rem, 4vw, 2rem);
+}
+
+.bf-card-body h3 {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    line-height: 1.35;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Header / menu mobile */
+@media (max-width: 767px) {
+    .brasilflix-header .navbar {
+        min-height: 64px;
+    }
+
+    .header-horizontal .navbar-collapse {
+        border-top-color: rgba(255, 255, 255, 0.12) !important;
+        max-height: calc(100vh - 72px);
+    }
+
+    .header-horizontal.active {
+        z-index: 10000;
+        background: rgba(7, 10, 14, 0.98);
+    }
+
+    .header-horizontal .navbar-nav {
+        width: 100%;
+    }
+
+    .header-horizontal .nav-link {
+        padding: 12px 0;
+        font-size: 1rem;
+    }
+
+    .header-horizontal .navbar-extra {
+        width: 100%;
+    }
+
+    .header-horizontal .navbar-extra .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    body.bf-nav-open {
+        overflow: hidden;
+    }
+}
+
+/* Grids de catálogo */
+.bf-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: clamp(10px, 2vw, 18px);
+}
+
+@media (min-width: 576px) {
+    .bf-catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .bf-catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    }
+}
+
+@media (min-width: 1200px) {
+    .bf-catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+.bf-card-poster {
+    aspect-ratio: 2 / 3;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Hero / busca */
+.bf-hero {
+    min-height: clamp(420px, 70vh, 760px);
+    padding: clamp(100px, 18vw, 150px) 0 clamp(48px, 10vw, 86px);
+}
+
+.bf-hero-search,
+.bf-title-grid {
+    width: 100%;
+    max-width: 100%;
+}
+
+@media (max-width: 767px) {
+    .bf-hero-search {
+        grid-template-columns: 1fr;
+        padding: 8px;
+    }
+
+    .bf-title-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bf-title-grid .btn {
+        width: 100%;
+    }
+
+    .bf-control-panel {
+        padding: 16px;
+    }
+
+    .bf-hero-stats {
+        justify-content: center;
+    }
+
+    .bf-hero-stats span {
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .bf-hero-search {
+        grid-template-columns: minmax(0, 1fr) 100px 130px;
+    }
+
+    .bf-title-grid {
+        grid-template-columns: minmax(0, 1fr) 88px 48px;
+    }
+}
+
+/* Páginas com hero custom */
+.bf-page-hero,
+.anime-hero,
+.desenho-hero,
+.dorama-hero {
+    min-height: clamp(280px, 45vh, 520px) !important;
+    padding: clamp(48px, 10vw, 80px) 0 !important;
+}
+
+.anime-hero h1,
+.anime-hero h2,
+.desenho-hero h1,
+.desenho-hero h2,
+.dorama-hero .titulo-dorama {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+}
+
+.anime-hero,
+.desenho-hero,
+.dorama-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+.bf-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.anime-hero .container,
+.desenho-hero .container,
+.dorama-hero .container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.genre-btn {
+    padding: 8px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.genre-btn:hover,
+.genre-btn.active {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: #fff;
+}
+
+.season-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin: 4px;
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+.season-winter { background: #a8d8ea; color: #2c3e50; }
+.season-spring { background: #f8b4b4; color: #2c3e50; }
+.season-summer { background: #ffd700; color: #2c3e50; }
+.season-fall { background: #d4a574; color: #2c3e50; }
+
+.tab-btn {
+    padding: 10px 22px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.45);
+    border-color: #fff;
+}
+
+/* Filtros animes — wrap */
+.bf-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.genre-btn,
+.season-badge,
+.tab-btn {
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+}
+
+@media (max-width: 575px) {
+    .genre-btn,
+    .season-badge,
+    .tab-btn {
+        padding: 8px 12px;
+        margin: 4px;
+    }
+}
+
+/* Botões de player */
+.bf-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 575px) {
+    .bf-filter-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+        scrollbar-width: thin;
+    }
+
+    .bf-filter-row .bf-filter {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+}
+
+/* Detalhes */
+.bf-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(160px, 240px) minmax(0, 1fr);
+    gap: clamp(20px, 4vw, 40px);
+    align-items: start;
+}
+
+.bf-detail-poster {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+}
+
+@media (max-width: 767px) {
+    .bf-detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .bf-detail-poster {
+        max-width: 220px;
+        margin: 0 auto;
+    }
+
+    .bf-detail-copy h1 {
+        text-align: center;
+        font-size: clamp(1.6rem, 6vw, 2.4rem);
+    }
+
+    .bf-detail-copy p {
+        font-size: 1rem;
+    }
+
+    .bf-detail-actions {
+        justify-content: center;
+    }
+
+    .bf-season-controls .row > [class*="col-"] {
+        margin-bottom: 12px;
+    }
+}
+
+/* Busca home — cards empilhados */
+#bf-search-results .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#bf-search-results img {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
+    object-fit: cover;
+}
+
+@media (max-width: 767px) {
+    #bf-search-results .col-md-3,
+    #bf-search-results .col-md-9 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    #bf-search-results h4 {
+        font-size: 1.15rem;
+        margin-top: 12px;
+    }
+}
+
+/* Categorias */
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+}
+
+.genre-card {
+    min-height: 80px;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+}
+
+.category-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.category-tabs .nav-link {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 575px) {
+    .movie-card img {
+        height: 200px;
+    }
+}
+
+/* Input groups Bootstrap */
+@media (max-width: 575px) {
+    .input-group {
+        flex-wrap: wrap;
+    }
+
+    .input-group > .form-control {
+        width: 100%;
+        border-radius: 4px !important;
+        margin-bottom: 8px;
+    }
+
+    .input-group-append,
+    .input-group-prepend {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .input-group-append .btn,
+    .input-group-prepend .btn {
+        width: 100%;
+        border-radius: 4px !important;
+    }
+}
+
+/* Footer */
+.bf-footer .row > [class*="col-"] {
+    margin-bottom: 24px;
+}
+
+@media (max-width: 767px) {
+    .bf-footer .footer-text {
+        font-size: 0.9rem;
+    }
+}
+
+/* Botões flutuantes — não cobrir player */
+@media (max-width: 768px) {
+    .floating-actions {
+        bottom: 16px !important;
+        right: 12px !important;
+    }
+
+    .bf-player-section {
+        padding-bottom: 72px;
+    }
+}
+
+/* Container padding em telas pequenas */
+@media (max-width: 575px) {
+    .container {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+}
+
+/* Utilitários */
+.bf-text-break {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.bf-img-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

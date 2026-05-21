@@ -3,24 +3,35 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Detalhes - BrasilFLIX</title>
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="./animate.css/animate.css" rel="stylesheet" type="text/css" />
-    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
-    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
-    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
-    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-    <!-- CSS extras -->
-    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
-    <script src="https://seenimplieddump.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script> 
-    <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
-<div id="container-ca14ad0de7291d1f27386bee56f15bac"></div>
-    <script src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#090c10" />
+    <title>Assistir Online | BrasilFLIX</title>
+    <meta name="description" content="Página de detalhes do título no BrasilFLIX: sinopse, elenco, trailer e opções de reprodução." />
+    <meta name="keywords" content="assistir online, sinopse, trailer, BrasilFLIX" />
+    <link rel="canonical" href="/detalhes.html" />
+    <meta property="og:type" content="video.other" />
+    <meta property="og:site_name" content="BrasilFLIX" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Assistir Online | BrasilFLIX" />
+    <meta property="og:description" content="Página de detalhes do título no BrasilFLIX: sinopse, elenco, trailer e opções de reprodução." />
+    <meta property="og:image" content="https://image.tmdb.org/t/p/w500/wwemzKWzjKYJFfCeiB57v3vH1Xg.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Assistir Online | BrasilFLIX" />
+    <meta name="twitter:description" content="Página de detalhes do título no BrasilFLIX: sinopse, elenco, trailer e opções de reprodução." />
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
+    <link href="./css/dot-icons.css" rel="stylesheet" />
+    <link href="./css/theme.css" rel="stylesheet" />
+    <link href="./css/brasilflix.css" rel="stylesheet" />
+    <link href="./css/extras.css" rel="stylesheet" />
+    <link href="./css/responsive.css" rel="stylesheet" />
 </head>
 <body class="body brasilflix-body" data-bf-page="detalhes">
-    <header class="header header-horizontal header-view-pannel brasilflix-header">
+    <a class="bf-skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
+    <header role="banner" class="header header-horizontal header-view-pannel brasilflix-header">
         <div class="container">
             <nav class="navbar">
                 <a class="navbar-brand" href="./homepage-1.html" aria-label="BrasilFLIX">
@@ -41,16 +52,15 @@
             </nav>
         </div>
     </header>
-    <main>
+    <main id="conteudo-principal">
         <div id="bf-detail"></div>
         <div id="bf-related"></div>
     </main>
-    <script src="./js/jquery-3.3.1.js"defer></script>
-    <script src="./bootstrap/js/bootstrap.js"defer></script>
-    <script src="./waypoints/jquery.waypoints.min.js"defer></script>
-    <script src="./js/brasilflix.js"defer></script>
-    <!-- Scripts extras -->
-    <script src="./js/extras.js"defer></script>
+    <script src="./js/site.js" defer></script>
+    <script src="./js/jquery-3.3.1.js" defer></script>
+    <script src="./bootstrap/js/bootstrap.js" defer></script>
+    <script src="./js/brasilflix.js" defer></script>
+    <script src="./js/extras.js" defer></script>
     <!-- Script inline: botão trailer e histórico -->
     <script>
         // Adiciona botão de trailer estilizado
@@ -87,13 +97,6 @@
             }
         }, 800);
 
-        // Fallback para carregar detalhes (se necessário)
-        document.addEventListener("DOMContentLoaded", function() {
-            console.log("🔄 Forçando execução do BrasilFLIX...");
-            if (typeof loadDetailsPage === "function" && document.body.getAttribute("data-bf-page") === "detalhes") {
-                loadDetailsPage();
-            }
-        });
     </script>
 </body>
 </html>

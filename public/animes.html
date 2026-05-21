@@ -3,120 +3,35 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Animes - BrasilFLIX</title>
-    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" type="text/css" />
-    <link href="./css/dot-icons.css" rel="stylesheet" type="text/css" />
-    <link href="./css/theme.css" rel="stylesheet" type="text/css" />
-    <link href="./css/brasilflix.css" rel="stylesheet" type="text/css" />
-    <link href="./css/extras.css" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#090c10" />
+    <title>Animes Online Grátis | BrasilFLIX</title>
+    <meta name="description" content="Animes em português e legendados no BrasilFLIX. Filtros por gênero, temporada e busca por título." />
+    <meta name="keywords" content="animes online, anime grátis, assistir anime, BrasilFLIX" />
+    <link rel="canonical" href="/animes.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BrasilFLIX" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Animes Online Grátis | BrasilFLIX" />
+    <meta property="og:description" content="Animes em português e legendados no BrasilFLIX. Filtros por gênero, temporada e busca por título." />
     
-    <style>
-        .anime-hero {
-        
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            color: white;
-        }
-        
-        .genre-btn {
-            padding: 8px 18px;
-            border: 2px solid rgba(255,255,255,0.4);
-            background: rgba(255,255,255,0.15);
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-            margin: 5px;
-            font-size: 0.9rem;
-        }
-        
-        .genre-btn:hover, .genre-btn.active {
-            background: rgba(255,255,255,0.35);
-            border-color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        .anime-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #ff6b6b;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            z-index: 2;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
-        .rating-badge {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            color: #ffd700;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .section-title {
-            color: white;
-            text-align: center;
-            margin: 30px 0;
-            font-size: 2em;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
-        }
-        
-        .card-img-top {
-            transition: opacity 0.3s;
-        }
-        
-        .card:hover .card-img-top {
-            opacity: 0.9;
-        }
-        
-        .season-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            margin: 3px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .season-badge:hover {
-            transform: scale(1.05);
-        }
-        
-        .season-winter { background: #a8d8ea; color: #2c3e50; }
-        .season-spring { background: #f8b4b4; color: #2c3e50; }
-        .season-summer { background: #ffd700; color: #2c3e50; }
-        .season-fall { background: #d4a574; color: #2c3e50; }
-    </style>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Animes Online Grátis | BrasilFLIX" />
+    <meta name="twitter:description" content="Animes em português e legendados no BrasilFLIX. Filtros por gênero, temporada e busca por título." />
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="./fontawesome/css/fontawesome-all.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
+    <link href="./css/dot-icons.css" rel="stylesheet" />
+    <link href="./css/theme.css" rel="stylesheet" />
+    <link href="./css/brasilflix.css" rel="stylesheet" />
+    <link href="./css/extras.css" rel="stylesheet" />
+    <link href="./css/responsive.css" rel="stylesheet" />
 </head>
-<script src="./js/extras.js"></script>
-
 <body class="body brasilflix-body" data-bf-page="animes">
-    <header class="header header-horizontal header-view-pannel brasilflix-header">
+    <a class="bf-skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
+    <header role="banner" class="header header-horizontal header-view-pannel brasilflix-header">
         <div class="container">
             <nav class="navbar">
                 <a class="navbar-brand" href="./homepage-1.html">
@@ -125,7 +40,7 @@
                         <span class="logo-text text-uppercase"><span>B</span>rasilFLIX</span>
                     </span>
                 </a>
-                <button class="navbar-toggler" type="button"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
+                <button class="navbar-toggler" type="button" aria-label="Abrir ou fechar menu" aria-expanded="false"><span class="th-dots-active-close th-dots th-bars"><span></span><span></span><span></span></span></button>
                 <div class="navbar-collapse">
                     <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link" href="homepage-1.html">Inicio</a></li>
@@ -141,20 +56,15 @@
         </div>
     </header>
 
-    <main>
+    <main id="conteudo-principal">
         <!-- Hero Section -->
-        <section class="anime-hero" style="background-image: url('https://image.tmdb.org/t/p/original/j0gsESaBzFmYVhnBTXzIE9PsgY8.jpg');
-         background-size: cover; background-position: center; position: relative; min-height: 600px; display: flex; align-items: center; overflow: hidden;">
-         <!-- Overlay escuro -->
-        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6); z-index: 1;"></div>
-         <!-- Conteúdo textual -->
-            <div class="container" style="position: relative; z-index: 2;">
-                <h2 class="text-center mb-3">🎌 Animes</h2>
+        <section class="anime-hero" style="background-image: url('https://image.tmdb.org/t/p/original/j0gsESaBzFmYVhnBTXzIE9PsgY8.jpg');">
+        <div class="bf-hero-overlay" aria-hidden="true"></div>
+            <div class="container">
+                <h1 class="text-center mb-3">🎌 Animes</h1>
                 <p class="text-center mb-4">A melhor experiência otaku em um só lugar</p>
                 
-                <!-- Filtros de Gênero -->
-                <div class="text-center mb-4">
+                <div class="bf-filter-chips text-center mb-4" role="group" aria-label="Filtrar por gênero">
                     <button class="genre-btn active" data-genre="all">🏠 Todos</button>
                     <button class="genre-btn" data-genre="10759">⚔️ Ação/Aventura</button>
                     <button class="genre-btn" data-genre="35">😂 Comédia</button>
@@ -165,9 +75,8 @@
                     <button class="genre-btn" data-genre="80">🔪 Crime</button>
                 </div>
                 
-                <!-- Temporadas -->
-                <div class="text-center mb-3">
-                    <span class="text-white mr-2">📅 Temporada:</span>
+                <div class="bf-filter-chips text-center mb-3" role="group" aria-label="Filtrar por temporada">
+                    <span class="text-white mr-2 d-block d-sm-inline mb-2 mb-sm-0">📅 Temporada:</span>
                     <span class="season-badge season-winter" data-season="winter">❄️ Inverno</span>
                     <span class="season-badge season-spring" data-season="spring">🌸 Primavera</span>
                     <span class="season-badge season-summer" data-season="summer">☀️ Verão</span>
@@ -177,40 +86,25 @@
                 <!-- Barra de Busca -->
                 <div class="row mt-3">
                     <div class="col-md-8 mx-auto">
-                        <div class="input-group">
+                        <form id="bf-title-form" class="input-group" autocomplete="off">
                             <input type="text" id="bf-title-input" class="form-control" 
                                    placeholder="🔍 Buscar animes... (ex: Naruto, One Piece, Attack on Titan)">
                             <div class="input-group-append">
-                                <button class="btn btn-light" onclick="searchAnimes()">
+                                <button class="btn btn-light" type="submit" form="bf-title-form">
                                     <i class="fas fa-search"></i> Buscar
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Catálogo de Animes -->
         <section class="section-long">
             <div class="container">
                 <h2 class="section-title" id="section-title">📺 Animes Populares</h2>
-                <div id="bf-message" class="text-center text-white mb-3"></div>
-                <div id="bf-anime-catalog" class="row"></div>
-                
-                <!-- Loading Spinner -->
-                <div id="loading-spinner" class="text-center mt-4" style="display: none;">
-                    <div class="spinner-border text-light" role="status">
-                        <span class="sr-only">Carregando...</span>
-                    </div>
-                </div>
-                
-                <!-- Botão Carregar Mais -->
-                <div class="text-center mt-4">
-                    <button id="load-more-btn" class="btn btn-theme btn-lg" onclick="loadMoreAnimes()">
-                        ⬇️ Carregar Mais Animes
-                    </button>
-                </div>
+                <p id="bf-message" class="bf-message text-center text-white mb-3" role="status"></p>
+                <div id="bf-catalog" class="bf-catalog-grid" aria-live="polite"></div>
             </div>
         </section>
     </main>
@@ -221,278 +115,10 @@
         </div>
     </footer>
 
-    <script src="./js/jquery-3.3.1.js"></script>
-    <script src="./bootstrap/js/bootstrap.js"></script>
-    
-    <script>
-        const IMAGE_BASE = "https://image.tmdb.org/t/p/w780";
-        const FALLBACK_POSTER = "https://via.placeholder.com/500x750?text=Sem+Poster";
-        
-        let currentPage = 1;
-        let currentGenre = 'all';
-        let currentSeason = '';
-        let isLoading = false;
-        let totalPages = 1;
-        let searchMode = false;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🎌 Página de Animes carregada');
-            loadAnimes();
-            setupFilters();
-            setupSearch();
-        });
-
-        function setupFilters() {
-            // Filtros de gênero
-            document.querySelectorAll('.genre-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentGenre = this.dataset.genre;
-                    currentPage = 1;
-                    searchMode = false;
-                    document.getElementById('bf-anime-catalog').innerHTML = '';
-                    document.getElementById('section-title').textContent = 
-                        this.textContent.trim() === '🏠 Todos' ? '📺 Animes Populares' : `📺 ${this.textContent.trim()}`;
-                    loadAnimes();
-                });
-            });
-            
-            // Filtros de temporada
-            document.querySelectorAll('.season-badge').forEach(badge => {
-                badge.addEventListener('click', function() {
-                    document.querySelectorAll('.season-badge').forEach(b => b.style.opacity = '0.6');
-                    this.style.opacity = '1';
-                    currentSeason = this.dataset.season;
-                    currentPage = 1;
-                    searchMode = false;
-                    document.getElementById('bf-anime-catalog').innerHTML = '';
-                    const seasonNames = { winter: '❄️ Inverno', spring: '🌸 Primavera', summer: '☀️ Verão', fall: '🍂 Outono' };
-                    document.getElementById('section-title').textContent = `📺 Animes - Temporada de ${seasonNames[currentSeason]}`;
-                    loadAnimes();
-                });
-            });
-        }
-
-        function setupSearch() {
-            const searchInput = document.getElementById('bf-title-input');
-            let searchTimer;
-            
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimer);
-                searchTimer = setTimeout(() => {
-                    if (this.value.trim().length >= 2) {
-                        searchAnimes();
-                    } else if (this.value.trim().length === 0) {
-                        searchMode = false;
-                        currentPage = 1;
-                        document.getElementById('bf-anime-catalog').innerHTML = '';
-                        document.getElementById('section-title').textContent = '📺 Animes Populares';
-                        loadAnimes();
-                    }
-                }, 600);
-            });
-            
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    clearTimeout(searchTimer);
-                    searchAnimes();
-                }
-            });
-        }
-
-        
-            showMessage('🎌 Carregando animes...');
-            
-        async function loadAnimes() {
-    if (isLoading || currentPage > totalPages || searchMode) return;
-
-    isLoading = true;
-    showLoading(true);
-    showMessage('🎌 Carregando animes...');
-
-    try {
-        let url;
-
-        if (currentSeason) {
-            // Animes por temporada (mantém rota específica se existir)
-            const year = new Date().getFullYear();
-            url = `/api/animes/seasonal?page=${currentPage}&year=${year}&season=${currentSeason}`;
-        } else if (currentGenre === 'all') {
-            // Todos os animes populares (rota existente)
-            url = `/api/animes/popular?page=${currentPage}`;
-        } else {
-            // Usa a rota discover genérica (compatível com qualquer servidor)
-            const params = new URLSearchParams({
-                type: 'tv',
-                page: currentPage,
-                sort_by: 'popularity.desc',
-                genre: `16,${currentGenre}`,   // 16 = animação + gênero escolhido
-                language: 'ja',                 // idioma original japonês
-                'vote_count.gte': 5
-            });
-            url = `/api/discover?${params.toString()}`;
-        }
-
-        console.log('🔍 URL:', url);
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        console.log('📊 Dados recebidos:', {
-            totalResults: data.total_results,
-            currentPage: data.page,
-            totalPages: data.total_pages,
-            resultsCount: data.results?.length
-        });
-
-        if (data.results && data.results.length > 0) {
-            renderAnimes(data.results, true);
-            totalPages = Math.min(data.total_pages || 1, 100);
-            currentPage++;
-
-            if (currentPage > totalPages) {
-                document.getElementById('load-more-btn').style.display = 'none';
-                showMessage('✅ Todos os animes carregados!');
-            } else {
-                document.getElementById('load-more-btn').style.display = 'inline-block';
-                showMessage(`${data.total_results} animes disponíveis`);
-            }
-        } else {
-            showMessage('😔 Nenhum anime encontrado.');
-            document.getElementById('load-more-btn').style.display = 'none';
-        }
-    } catch (error) {
-        console.error('❌ Erro:', error);
-        showMessage('❌ Erro ao carregar animes. Tente novamente.');
-    } finally {
-        isLoading = false;
-        showLoading(false);
-    }
-}    
-          
-
-        async function searchAnimes() {
-            const query = document.getElementById('bf-title-input').value.trim();
-            if (query.length < 2) return;
-            
-            searchMode = true;
-            showLoading(true);
-            showMessage('🔍 Buscando animes...');
-            document.getElementById('bf-anime-catalog').innerHTML = '';
-            document.getElementById('section-title').textContent = `🔍 Resultados para: "${query}"`;
-            
-            try {
-                const response = await fetch(`/api/animes/search?query=${encodeURIComponent(query)}&page=1`);
-                const data = await response.json();
-                
-                console.log('🔍 Resultados da busca:', data);
-                
-                if (data.results && data.results.length > 0) {
-                    renderAnimes(data.results);
-                    showMessage(`✅ ${data.results.length} anime(s) encontrado(s)`);
-                    document.getElementById('load-more-btn').style.display = 'none';
-                } else {
-                    showMessage('😔 Nenhum anime encontrado. Tente outro termo.');
-                }
-            } catch (error) {
-                console.error('❌ Erro na busca:', error);
-                showMessage('❌ Erro na busca. Tente novamente.');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        function loadMoreAnimes() {
-            if (!searchMode) {
-                loadAnimes();
-            }
-        }
-
-        function renderAnimes(items, append = false) {
-            const catalog = document.getElementById('bf-anime-catalog');
-            if (!append) catalog.innerHTML = '';
-            
-            const html = items.map(item => createAnimeCard(item)).join('');
-            catalog.insertAdjacentHTML(append ? 'beforeend' : 'afterbegin', html);
-        }
-
-        function createAnimeCard(item) {
-            const title = item.name || item.title || 'Sem título';
-            const poster = item.poster_path ? IMAGE_BASE + item.poster_path : FALLBACK_POSTER;
-            const year = item.first_air_date ? item.first_air_date.split('-')[0] : '';
-            const rating = item.vote_average ? item.vote_average.toFixed(1) : '?';
-            const episodes = item.number_of_episodes || '?';
-            const overview = item.overview ? item.overview.substring(0, 100) + '...' : 'Sem sinopse disponível.';
-            
-            // Determinar tipo de anime baseado nos gêneros
-            const genres = item.genre_ids || [];
-            let badge = '📺 Anime';
-            if (genres.includes(10759)) badge = '⚔️ Ação';
-            else if (genres.includes(35)) badge = '😂 Comédia';
-            else if (genres.includes(18)) badge = '🎭 Drama';
-            else if (genres.includes(10765)) badge = '🚀 Sci-Fi';
-            else if (genres.includes(9648)) badge = '🔍 Mistério';
-            
-            return `
-                <div class="col-6 col-md-4 col-lg-3 mb-4">
-                    <div class="card bg-dark text-white h-100">
-                        <div class="position-relative">
-                            <img src="${poster}" class="card-img-top" alt="${title}" 
-                                 style="height: 350px; object-fit: cover;" 
-                                 onerror="this.src='${FALLBACK_POSTER}'">
-                            <div class="anime-badge">${badge}</div>
-                            <div class="rating-badge">⭐ ${rating}</div>
-                        </div>
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title" style="font-size: 0.9rem; font-weight: bold;">${title}</h6>
-                            <div class="mb-2">
-                                <small class="text-muted">
-                                    📅 ${year || 'N/A'} | 📺 ${episodes} eps
-                                </small>
-                            </div>
-                            <p class="card-text" style="font-size: 0.8rem; color: #aaa; flex-grow: 1;">
-                                ${overview}
-                            </p>
-                            <a href="detalhes.html?id=${item.id}&media=tv" 
-                               class="btn btn-theme btn-sm btn-block mt-auto">
-                                🎬 Assistir Agora
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showMessage(text) {
-            const el = document.getElementById('bf-message');
-            if (el) el.textContent = text;
-            console.log('💬', text);
-        }
-        
-        function showLoading(show) {
-            const spinner = document.getElementById('loading-spinner');
-            const loadMoreBtn = document.getElementById('load-more-btn');
-            if (spinner) spinner.style.display = show ? 'block' : 'none';
-            if (loadMoreBtn && show) loadMoreBtn.style.display = 'none';
-        }
-
-        // Scroll infinito
-        window.addEventListener('scroll', () => {
-            if (isLoading || currentPage > totalPages || searchMode) return;
-            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-            if (scrollTop + clientHeight >= scrollHeight - 600) {
-                loadAnimes();
-            }
-        });
-    </script>
-    <script async src="./js/extras.js"defer></script>
-    <script async src="https://seenimplieddump.com/29/9a/a9/299aa9ba06b6bdbf6756540a2322ff93.js"></script>
-
-    <script async="async" data-cfasync="false" src="https://pl29507706.effectivecpmnetwork.com/ca14ad0de7291d1f27386bee56f15bac/invoke.js"></script>
-<div id="container-ca14ad0de7291d1f27386bee56f15bac"></div>
-    <script async src="https://pl29507707.effectivecpmnetwork.com/82/dd/c0/82ddc0838dca3c262aedecd6d756c513.js"></script>
-
-    
+    <script src="./js/site.js" defer></script>
+    <script src="./js/jquery-3.3.1.js" defer></script>
+    <script src="./bootstrap/js/bootstrap.js" defer></script>
+    <script src="./js/brasilflix.js" defer></script>
+    <script src="./js/extras.js" defer></script>
 </body>
 </html>

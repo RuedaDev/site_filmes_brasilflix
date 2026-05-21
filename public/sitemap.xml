@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>/homepage-1.html</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>/filmes.html</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>/series.html</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>/animes.html</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>/doramas.html</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>/desenhos.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>/categorias.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>/login.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>/cadastro.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+</urlset>

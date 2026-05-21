@@ -401,6 +401,31 @@ app.get("/api/animes/popular", async (req, res) => {
     sendTmdbResult(res, data);
 });
 
+app.get("/api/animes/search", async (req, res) => {
+    const query = String(req.query.query || "").trim();
+    const page = normalizePage(req.query.page);
+
+    if (!query) {
+        res.json({ page: 1, results: [], total_pages: 0, total_results: 0 });
+        return;
+    }
+
+    const data = await tmdbRequest("/search/tv", {
+        query,
+        page,
+        include_adult: false
+    });
+
+    if (data.results) {
+        data.results = data.results.filter(item =>
+            item.genre_ids && item.genre_ids.includes(16) &&
+            item.original_language === "ja"
+        );
+    }
+
+    sendTmdbResult(res, data);
+});
+
 // ==================== OUTRAS ROTAS ====================
 
 app.get("/api/trailers/:type/:id", async (req, res) => {
@@ -440,10 +465,6 @@ app.get("/api/genre/:type/:genreId", async (req, res) => {
         "vote_count.gte": 5
     });
     sendTmdbResult(res, data);
-});
-// Fallback para páginas HTML
-app.use((req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
 });
 
 // Estatísticas do usuário (perfil)
@@ -527,6 +548,12 @@ app.get("/api/desenhos/search", async (req, res) => {
     }
     sendTmdbResult(res, data);
 });
+
+// Fallback SPA: apenas após todas as rotas de API
+app.use((req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, "homepage-1.html"));
+});
+
 // ==================== INICIAR SERVIDOR ====================
 
 app.listen(PORT, () => {
