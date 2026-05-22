@@ -27,6 +27,16 @@
     <link href="./css/brasilflix.css" rel="stylesheet" />
     <link href="./css/extras.css" rel="stylesheet" />
     <link href="./css/responsive.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker registrado', reg.scope))
+        .catch(err => console.log('Falha no Service Worker', err));
+    });
+  }
+</script>
     <script type="application/ld+json">
     {"@context":"https://schema.org","@type":"WebSite","name":"BrasilFLIX","url":"/homepage-1.html","description":"Plataforma para assistir filmes, séries, animes e doramas online.","potentialAction":{"@type":"SearchAction","target":"/homepage-1.html?busca={search_term_string}","query-input":"required name=search_term_string"}}
     </script>
